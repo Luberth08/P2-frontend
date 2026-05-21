@@ -1,0 +1,133 @@
+<div class="tecnicos-page">
+  <div class="header">
+    <h2>Técnicos del taller</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir técnico</app-button>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'activos'" (click)="changeTab('activos')">Actuales</button>
+    <button [class.active]="activeTab === 'suspendidos'" (click)="changeTab('suspendidos')">Descontinuados</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Lista de activos -->
+  <div *ngIf="!isLoading && activeTab === 'activos'">
+    <div class="tecnicos-list">
+      <table class="tecnicos-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Especialidades</th>
+            <th>Fecha ingreso</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tecnicosActivos">
+            <td>{{ t.usuario_nombre }}</td>
+            <td>{{ t.usuario_email }}</td>
+            <td>
+              <span *ngFor="let e of t.especialidades; let i = index">{{ e.nombre }}<span *ngIf="i < t.especialidades.length - 1">, </span></span>
+            </td>
+            <td>{{ t.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
+            <td><span class="estado disponible">{{ t.estado }}</span></td>
+            <td>
+              <button class="btn-edit" (click)="openEditModal(t)">Editar</button>
+              <button class="btn-suspend" (click)="openSuspendModal(t)">Suspender</button>
+            </td>
+          </tr>
+          <tr *ngIf="tecnicosActivos.length === 0">
+            <td colspan="6" class="empty">No hay técnicos activos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalActivos > limit">
+      <app-button variant="secondary" (click)="prevPageActivos()" [disabled]="skipActivos === 0">Anterior</app-button>
+      <span>Página {{ pageActivos }} de {{ totalPagesActivos }}</span>
+      <app-button variant="secondary" (click)="nextPageActivos()" [disabled]="skipActivos + limit >= totalActivos">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Lista de suspendidos -->
+  <div *ngIf="!isLoading && activeTab === 'suspendidos'">
+    <div class="tecnicos-list">
+      <table class="tecnicos-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Especialidades</th>
+            <th>Fecha ingreso</th>
+            <th>Fecha salida</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tecnicosSuspendidos">
+            <td>{{ t.usuario_nombre }}</td>
+            <td>{{ t.usuario_email }}</td>
+            <td>
+              <span *ngFor="let e of t.especialidades; let i = index">{{ e.nombre }}<span *ngIf="i < t.especialidades.length - 1">, </span></span>
+            </td>
+            <td>{{ t.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
+            <td>{{ t.fecha_salida | date:'dd/MM/yyyy' }}</td>
+            <td><span class="estado suspendido">{{ t.estado }}</span></td>
+          </tr>
+          <tr *ngIf="tecnicosSuspendidos.length === 0">
+            <td colspan="6" class="empty">No hay técnicos suspendidos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalSuspendidos > limit">
+      <app-button variant="secondary" (click)="prevPageSuspendidos()" [disabled]="skipSuspendidos === 0">Anterior</app-button>
+      <span>Página {{ pageSuspendidos }} de {{ totalPagesSuspendidos }}</span>
+      <app-button variant="secondary" (click)="nextPageSuspendidos()" [disabled]="skipSuspendidos + limit >= totalSuspendidos">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Modal de creación -->
+  <app-modal [title]="isEditing ? 'Editar especialidades' : 'Añadir técnico'" [visible]="showCreateModal" (close)="closeCreateModal()">
+    <div class="form-modal">
+      <app-input-field
+        label="Email del usuario"
+        type="email"
+        icon="fa-envelope"
+        [required]="true"
+        [(ngModel)]="formData.email"
+        [disabled]="isEditing"
+      ></app-input-field>
+
+      <div class="form-group especialidades-group">
+        <label>Especialidades</label>
+        <div class="especialidades-list">
+          <button type="button" *ngFor="let e of especialidades" (click)="toggleEspecialidad(e.id)" [class.selected]="formData.especialidades_ids.includes(e.id)">
+            {{ e.nombre }}
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeCreateModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="saveTecnico()">{{ isEditing ? 'Guardar' : 'Añadir' }}</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- Modal de confirmación de suspensión -->
+  <app-modal [title]="'Confirmar suspensión'" [visible]="showSuspendModal" (close)="closeSuspendModal()">
+    <div class="confirm-modal">
+      <p>¿Estás seguro de suspender a <strong>{{ suspendTecnicoNombre }}</strong>?</p>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeSuspendModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="confirmarSuspension()">Suspender</app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>

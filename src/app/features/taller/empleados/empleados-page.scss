@@ -1,0 +1,97 @@
+.empleados-page {
+  padding: 1rem;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    h2 { margin: 0; color: var(--color-primary-dark); }
+  }
+  .tabs {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    button {
+      background: none;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: #666;
+      &.active {
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+      }
+    }
+  }
+  .loading-container { display: flex; justify-content: center; padding: 2rem; }
+  .empleados-list {
+    overflow-x: auto;
+  }
+  .empleados-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th { background: var(--color-light-bg); font-weight: 600; }
+    .estado {
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      &.estado-activo { background: #d4edda; color: #155724; }
+      &.estado-disponible { background: #cce5ff; color: #004085; }
+      &.estado-en-servicio { background: #fff3cd; color: #856404; }
+      &.estado-suspendido { background: #f8d7da; color: #721c24; }
+    }
+    .btn-suspend {
+      background: none;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      &:hover { text-decoration: underline; }
+    }
+    .empty { text-align: center; color: #888; }
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+}
+.form-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  .form-group {
+    label { display: block; margin-bottom: 0.25rem; font-weight: 500; }
+    .custom-select { width: 100%; padding: 0.5rem; border-radius: 12px; border: 1px solid #ccc; }
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.confirm-modal {
+  text-align: center;
+  p { margin-bottom: 1rem; }
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+}

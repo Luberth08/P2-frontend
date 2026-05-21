@@ -1,0 +1,71 @@
+<div class="dashboard">
+  <header class="header">
+    <app-logo [name]="'SmartAssist'"></app-logo>
+    <div class="tabs-container">
+      <app-tabs [tabs]="tabs" [activeTabId]="activeTabId" (tabChange)="onTabChange($event)"></app-tabs>
+    </div>
+    <app-user-avatar
+      [username]="user?.username || 'Usuario'"
+      [email]="user?.email || ''"
+      [photoUrl]="user?.url_img_perfil ?? null"
+      (profileClick)="goToProfile()"
+      (logoutClick)="logout()"
+    ></app-user-avatar>
+  </header>
+  <div class="main-layout">
+    <app-sidebar [items]="sidebarItems" [activeItemId]="activeSidebarItemId" (itemClick)="onSidebarItemClick($event)"></app-sidebar>
+    <main class="content">
+      <div *ngIf="isLoading" class="loading-container">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+      <div *ngIf="!isLoading">
+        <!-- Sección normal (Mi Cuenta) -->
+        <ng-container *ngIf="activeTabId === 'normal'">
+          <app-normal-view *ngIf="currentView === 'normal_inicio'"></app-normal-view>
+          <app-vehiculos-page *ngIf="currentView === 'normal_vehiculos'"></app-vehiculos-page>
+          <app-solicitudes-page *ngIf="currentView === 'normal_solicitudes'"></app-solicitudes-page>
+        </ng-container>
+
+        <!-- Sección taller -->
+        <ng-container *ngIf="activeTabId === 'taller'">
+          <div class="taller-section">
+            <div class="taller-selector" *ngIf="talleres.length > 0">
+              <label>Seleccionar taller: </label>
+              <select [(ngModel)]="selectedTallerId" (change)="onTallerChange()">
+                <option *ngFor="let t of talleres" [value]="t.id">{{ t.nombre }}</option>
+              </select>
+            </div>
+            <div *ngIf="loadingTalleres" class="loading-container">
+              <app-loading-spinner></app-loading-spinner>
+            </div>
+            <div *ngIf="!loadingTalleres && selectedTallerId">
+              <app-perfil-taller-page *ngIf="currentView === 'taller_perfil'" [tallerId]="selectedTallerId"></app-perfil-taller-page>
+              <app-taller-view *ngIf="currentView === 'taller_solicitudes'"></app-taller-view>
+              <app-servicios-taller-page *ngIf="currentView === 'taller_servicios'" [tallerId]="selectedTallerId"></app-servicios-taller-page>
+              <app-vehiculos-taller-page *ngIf="currentView === 'taller_vehiculos'" [tallerId]="selectedTallerId"></app-vehiculos-taller-page>
+              <app-tecnicos-page *ngIf="currentView === 'taller_tecnicos'" [tallerId]="selectedTallerId"></app-tecnicos-page>
+              <app-empleados-page *ngIf="currentView === 'taller_empleados'" [tallerId]="selectedTallerId"></app-empleados-page>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Sección sistema -->
+        <ng-container *ngIf="activeTabId === 'sistema'">
+          <app-especialidades-page *ngIf="currentView === 'sistema_especialidades'"></app-especialidades-page>
+          <app-sistema-view *ngIf="currentView === 'sistema_usuarios'"></app-sistema-view>
+          <app-categorias-incidentes-page *ngIf="currentView === 'sistema_categorias-incidentes'"></app-categorias-incidentes-page>
+          <app-incidentes-page *ngIf="currentView === 'sistema_incidentes'"></app-incidentes-page>
+          <app-talleres-admin-page *ngIf="currentView === 'sistema_talleres'"></app-talleres-admin-page>
+          <app-solicitudes-pendientes-page *ngIf="currentView === 'sistema_solicitudes-pendientes'"></app-solicitudes-pendientes-page>
+          <app-configuracion-page *ngIf="currentView === 'sistema_configuracion'"></app-configuracion-page>
+        </ng-container>
+      </div>
+    </main>
+  </div>
+  <footer class="footer">
+    <div class="container">
+      <app-logo [name]="'SmartAssist'"></app-logo>
+      <p class="copyright">© 2026 Asistencia Vial Inteligente. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,10 @@
+<div class="tabs">
+  <ng-container *ngFor="let tab of tabs">
+    <button *ngIf="tab.visible"
+            [class.active]="activeTabId === tab.id"
+            (click)="selectTab(tab.id)">
+      <i [class]="'fas ' + tab.icon"></i>
+      <span>{{ tab.label }}</span>
+    </button>
+  </ng-container>
+</div>

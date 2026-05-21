@@ -1,0 +1,26 @@
+<div class="editable-field">
+  <div class="field-label">{{ label }}</div>
+  <div class="field-content" *ngIf="!editing">
+    <span class="field-value" [class.empty]="!value">
+      {{ value || '' }}
+    </span>
+    <button class="edit-btn" (click)="startEdit()" [disabled]="disabled">
+      <i class="fas fa-pencil-alt"></i>
+    </button>
+  </div>
+  <div class="field-content editing" *ngIf="editing">
+    <app-input-field
+      [type]="type"
+      [icon]="icon"
+      [required]="required"
+      [maxLength]="maxLength"
+      [minLength]="minLength"
+      [inputMode]="inputMode"
+      [(ngModel)]="editValue"
+    ></app-input-field>
+    <div class="edit-actions">
+      <button class="confirm-btn" (click)="confirmEdit()"><i class="fas fa-check"></i></button>
+      <button class="cancel-btn" (click)="cancelEdit()"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+</div>

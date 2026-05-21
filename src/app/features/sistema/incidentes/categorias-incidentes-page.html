@@ -1,0 +1,122 @@
+<div class="categorias-page">
+  <div class="header">
+    <h2>Categorías de Incidentes</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir categoría</app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div class="table-container">
+      <table class="categorias-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Especialidades Requeridas</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cat of categorias">
+            <td><strong>{{ cat.nombre }}</strong></td>
+            <td>
+              <div class="especialidades-list">
+                <span 
+                  *ngFor="let id of cat.especialidad_ids" 
+                  class="especialidad-badge"
+                >
+                  {{ getEspecialidadNombre(id) }}
+                </span>
+                <span *ngIf="cat.especialidad_ids.length === 0" class="no-especialidades">
+                  Sin especialidades
+                </span>
+              </div>
+            </td>
+            <td>
+              <button class="btn-edit" (click)="openEditModal(cat)">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn-delete" (click)="openDeleteModal(cat)">
+                <i class="fas fa-trash-alt"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="categorias.length === 0">
+            <td colspan="3" class="empty">No hay categorías</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="total > limit">
+      <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+      <span>Página {{ currentPage }} de {{ totalPages }}</span>
+      <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar -->
+  <app-modal [title]="editing ? 'Editar categoría' : 'Añadir categoría'" [visible]="showFormModal" (close)="closeFormModal()">
+    <div class="form-modal">
+      <app-input-field 
+        label="Nombre" 
+        [(ngModel)]="formData.nombre" 
+        [required]="true"
+        icon="fa-tag"
+      ></app-input-field>
+
+      <div class="especialidades-section">
+        <label class="section-label">Especialidades Requeridas *</label>
+        <p class="section-hint">Seleccione al menos una especialidad</p>
+        <div class="especialidades-grid">
+          <div 
+            *ngFor="let esp of especialidades" 
+            class="especialidad-item"
+            [class.selected]="isEspecialidadSelected(esp.id)"
+            (click)="toggleEspecialidad(esp.id)"
+          >
+            <i class="fas" [class.fa-check-square]="isEspecialidadSelected(esp.id)" [class.fa-square]="!isEspecialidadSelected(esp.id)"></i>
+            <span>{{ esp.nombre }}</span>
+          </div>
+        </div>
+        <div *ngIf="especialidades.length === 0" class="no-especialidades">
+          No hay especialidades disponibles. Cree especialidades primero.
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeFormModal()" [disabled]="isSaving">Cancelar</app-button>
+        <app-button 
+          variant="primary" 
+          (click)="saveCategoria()" 
+          [disabled]="isSaving" 
+          [loading]="isSaving"
+          [loadingText]="editing ? 'Guardando...' : 'Añadiendo...'"
+        >
+          {{ editing ? 'Guardar' : 'Añadir' }}
+        </app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- Modal eliminar -->
+  <app-modal [title]="'Confirmar eliminación'" [visible]="showDeleteModal" (close)="closeDeleteModal()">
+    <div class="confirm-modal">
+      <p>¿Está seguro de eliminar la categoría <strong>{{ deleteNombre }}</strong>?</p>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeDeleteModal()" [disabled]="isDeleting">Cancelar</app-button>
+        <app-button 
+          variant="primary" 
+          (click)="confirmDelete()" 
+          [disabled]="isDeleting" 
+          [loading]="isDeleting"
+          loadingText="Eliminando..."
+        >
+          Eliminar
+        </app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>

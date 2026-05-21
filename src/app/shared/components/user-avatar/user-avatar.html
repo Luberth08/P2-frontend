@@ -1,0 +1,11 @@
+<div class="user-avatar" (click)="toggleMenu()">
+  <img [src]="photoUrl || 'assets/default-avatar.png'" alt="Avatar" class="avatar-img">
+  <div class="user-info">
+    <span class="username">{{ username }}</span>
+    <span class="email">{{ email }}</span>
+  </div>
+  <div class="dropdown-menu" *ngIf="showMenu">
+    <button (click)="onProfile()">Mi Perfil</button>
+    <button (click)="onLogout()">Cerrar sesión</button>
+  </div>
+</div>

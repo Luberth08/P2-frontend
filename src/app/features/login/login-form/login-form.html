@@ -1,0 +1,40 @@
+<div class="login-form">
+  <h2>Iniciar sesión</h2>
+  <p class="subtitle">Ingresa tus credenciales</p>
+
+  <form (ngSubmit)="onSubmit()">
+    <app-input-field
+      label="Email"
+      type="email"
+      icon="fa-envelope"
+      placeholder="tu@email.com"
+      [required]="true"
+      [maxLength]="255"
+      [(ngModel)]="email"
+      name="email"
+    ></app-input-field>
+
+    <app-input-field
+      label="Contraseña"
+      type="password"
+      icon="fa-lock"
+      placeholder="••••••••"
+      [required]="true"
+      [maxLength]="255"
+      [minLength]="6"
+      [(ngModel)]="password"
+      name="password"
+    ></app-input-field>
+
+    <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <app-button
+      type="submit"
+      variant="primary"
+      [loading]="isLoading"
+      [fullWidth]="true"
+    >
+      {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+    </app-button>
+  </form>
+</div>

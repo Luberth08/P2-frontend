@@ -1,0 +1,82 @@
+<div class="solicitudes-page">
+  <div class="header">
+    <h2>Mis Solicitudes de Afiliación</h2>
+    <app-button variant="primary" (click)="openModal()">+ Nueva solicitud</app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div class="solicitudes-list" *ngIf="!isLoading">
+    <div class="solicitud-card" *ngFor="let s of solicitudes">
+      <div class="card-header">
+        <h3>{{ s.nombre }}</h3>
+        <span class="estado" [class]="getEstadoClass(s.estado)">{{ getEstadoTexto(s.estado) }}</span>
+      </div>
+      <div class="card-body">
+        <p><strong>Ubicación:</strong> {{ s.ubicacion }}</p>
+        <p><strong>Teléfono:</strong> {{ s.telefono }}</p>
+        <p><strong>Email:</strong> {{ s.email }}</p>
+        <p *ngIf="s.comentario"><strong>Comentario:</strong> {{ s.comentario }}</p>
+        <p><strong>Solicitado el:</strong> {{ s.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p *ngIf="s.fecha_revision"><strong>Revisado el:</strong> {{ s.fecha_revision | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p *ngIf="s.nombre_usuario_revisa"><strong>Revisado por:</strong> {{ s.nombre_usuario_revisa }}</p>
+        <p *ngIf="s.comentario_revision"><strong>Comentario de revisión:</strong> {{ s.comentario_revision }}</p>
+      </div>
+    </div>
+    <div *ngIf="solicitudes.length === 0" class="empty">No has realizado ninguna solicitud.</div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="total > limit">
+    <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+  </div>
+</div>
+
+<!-- Modal para nueva solicitud -->
+<app-modal [title]="'Nueva solicitud de afiliación'" [visible]="showModal" (close)="closeModal()">
+  <div class="form-modal">
+    <app-input-field
+      label="Nombre del taller"
+      type="text"
+      icon="fa-building"
+      [required]="true"
+      [maxLength]="100"
+      [(ngModel)]="formData.nombre"
+    ></app-input-field>
+    <div class="form-group">
+      <label>Ubicación (selecciona en el mapa)</label>
+      <app-map *ngIf="showModal" (locationSelected)="onLocationSelected($event)"></app-map>
+      <small *ngIf="selectedLocation">Coordenadas seleccionadas: {{ selectedLocation.lat }}, {{ selectedLocation.lng }}</small>
+    </div>
+    <app-input-field
+      label="Teléfono"
+      type="tel"
+      icon="fa-phone"
+      [required]="true"
+      [maxLength]="15"
+      [(ngModel)]="formData.telefono"
+    ></app-input-field>
+    <app-input-field
+      label="Email"
+      type="email"
+      icon="fa-envelope"
+      [required]="true"
+      [maxLength]="255"
+      [(ngModel)]="formData.email"
+    ></app-input-field>
+    <app-input-field
+      label="Comentario (opcional)"
+      type="text"
+      icon="fa-comment"
+      [(ngModel)]="formData.comentario"
+    ></app-input-field>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="submitSolicitud()">Enviar solicitud</app-button>
+    </div>
+  </div>
+</app-modal>

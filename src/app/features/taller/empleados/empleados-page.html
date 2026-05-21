@@ -1,0 +1,124 @@
+<div class="empleados-page">
+  <div class="header">
+    <h2>Empleados del taller</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir empleado</app-button>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'activos'" (click)="changeTab('activos')">Actuales</button>
+    <button [class.active]="activeTab === 'suspendidos'" (click)="changeTab('suspendidos')">Descontinuados</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Lista de activos -->
+  <div *ngIf="!isLoading && activeTab === 'activos'">
+    <div class="empleados-list">
+      <table class="empleados-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Fecha ingreso</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of empleadosActivos">
+            <td>{{ emp.usuario_nombre }}</td>
+            <td>{{ emp.usuario_email }}</td>
+            <td>{{ emp.rol === 'admin_taller' ? 'Administrador' : 'Super Administrador' }}</td>
+            <td>{{ emp.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
+            <td><span class="estado activo">Activo</span></td>
+            <td>
+              <button class="btn-suspend" (click)="openSuspendModal(emp)">Suspender</button>
+            </td>
+          </tr>
+          <tr *ngIf="empleadosActivos.length === 0">
+            <td colspan="6" class="empty">No hay empleados activos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalActivos > limit">
+      <app-button variant="secondary" (click)="prevPageActivos()" [disabled]="skipActivos === 0">Anterior</app-button>
+      <span>Página {{ pageActivos }} de {{ totalPagesActivos }}</span>
+      <app-button variant="secondary" (click)="nextPageActivos()" [disabled]="skipActivos + limit >= totalActivos">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Lista de suspendidos -->
+  <div *ngIf="!isLoading && activeTab === 'suspendidos'">
+    <div class="empleados-list">
+      <table class="empleados-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Fecha ingreso</th>
+            <th>Fecha salida</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of empleadosSuspendidos">
+            <td>{{ emp.usuario_nombre }}</td>
+            <td>{{ emp.usuario_email }}</td>
+            <td>{{ emp.rol === 'admin_taller' ? 'Administrador' : 'Super Administrador' }}</td>
+            <td>{{ emp.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
+            <td>{{ emp.fecha_salida | date:'dd/MM/yyyy' }}</td>
+            <td><span class="estado suspendido">Suspendido</span></td>
+          </tr>
+          <tr *ngIf="empleadosSuspendidos.length === 0">
+            <td colspan="6" class="empty">No hay empleados suspendidos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalSuspendidos > limit">
+      <app-button variant="secondary" (click)="prevPageSuspendidos()" [disabled]="skipSuspendidos === 0">Anterior</app-button>
+      <span>Página {{ pageSuspendidos }} de {{ totalPagesSuspendidos }}</span>
+      <app-button variant="secondary" (click)="nextPageSuspendidos()" [disabled]="skipSuspendidos + limit >= totalSuspendidos">Siguiente</app-button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de creación -->
+<app-modal [title]="'Añadir empleado'" [visible]="showCreateModal" (close)="closeCreateModal()">
+  <div class="form-modal">
+    <app-input-field
+      label="Email del usuario"
+      type="email"
+      icon="fa-envelope"
+      [required]="true"
+      [(ngModel)]="formData.email"
+    ></app-input-field>
+    <div class="form-group">
+      <label>Rol</label>
+      <select [(ngModel)]="formData.rol" class="custom-select">
+        <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
+      </select>
+    </div>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeCreateModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="createEmpleado()">Añadir</app-button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- Modal de confirmación de suspensión -->
+<app-modal [title]="'Confirmar suspensión'" [visible]="showSuspendModal" (close)="closeSuspendModal()">
+  <div class="confirm-modal">
+    <p>¿Estás seguro de suspender a <strong>{{ suspendEmpleadoNombre }}</strong>?</p>
+    <p>El empleado perderá sus roles de administración en este taller.</p>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeSuspendModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="confirmarSuspension()">Suspender</app-button>
+    </div>
+  </div>
+</app-modal>

@@ -1,0 +1,138 @@
+<div class="register-form">
+  <h2>Crear cuenta</h2>
+  <p class="subtitle">Ingresa tus datos para comenzar</p>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Columna izquierda: campos de usuario -->
+      <div class="form-col">
+        <app-input-field
+          label="Email"
+          type="email"
+          icon="fa-envelope"
+          placeholder="tu@email.com"
+          [required]="true"
+          [maxLength]="255"
+          [(ngModel)]="email"
+          name="email"
+        ></app-input-field>
+
+        <app-input-field
+          label="Nombre de usuario"
+          type="text"
+          icon="fa-user"
+          placeholder="usuario123"
+          [required]="true"
+          [maxLength]="100"
+          [minLength]="3"
+          [(ngModel)]="username"
+          name="username"
+        ></app-input-field>
+
+        <app-input-field
+          label="Contraseña"
+          type="password"
+          icon="fa-lock"
+          placeholder="•••"
+          [required]="true"
+          [maxLength]="255"
+          [minLength]="6"
+          [(ngModel)]="password"
+          name="password"
+        ></app-input-field>
+      </div>
+
+      <!-- Columna derecha: datos personales opcionales -->
+      <div class="form-col">
+        <app-input-field
+          label="Nombre"
+          type="text"
+          icon="fa-user"
+          placeholder="Juan"
+          [maxLength]="100"
+          pattern="^[A-Za-záéíóúüñÁÉÍÓÚÜÑ\s]+$"
+          [(ngModel)]="nombre"
+          name="nombre"
+        ></app-input-field>
+
+        <app-input-field
+          label="Apellido paterno"
+          type="text"
+          icon="fa-user"
+          placeholder="Pérez"
+          [maxLength]="100"
+          pattern="^[A-Za-záéíóúüñÁÉÍÓÚÜÑ\s]+$"
+          [(ngModel)]="apellido_p"
+          name="apellido_p"
+        ></app-input-field>
+
+        <app-input-field
+          label="Apellido materno"
+          type="text"
+          icon="fa-user"
+          placeholder="Gómez"
+          [maxLength]="100"
+          pattern="^[A-Za-záéíóúüñÁÉÍÓÚÜÑ\s]+$"
+          [(ngModel)]="apellido_m"
+          name="apellido_m"
+        ></app-input-field>
+
+        <app-input-field
+          label="Dirección"
+          type="text"
+          icon="fa-home"
+          placeholder="Av. Siempre Viva 123"
+          [maxLength]="255"
+          [(ngModel)]="direccion"
+          name="direccion"
+        ></app-input-field>
+
+        <app-input-field
+          label="Teléfono"
+          type="tel"
+          icon="fa-phone"
+          placeholder="12345678"
+          [maxLength]="15"
+          pattern="^[0-9]+$"
+          inputMode="numeric"
+          [(ngModel)]="telefono"
+          name="telefono"
+        ></app-input-field>
+
+        <app-input-field
+          label="CI"
+          type="text"
+          icon="fa-id-card"
+          placeholder="1234567"
+          [maxLength]="10"
+          pattern="^[0-9]+$"
+          inputMode="numeric"
+          [(ngModel)]="ci"
+          name="ci"
+        ></app-input-field>
+
+        <app-input-field
+          label="Complemento"
+          type="text"
+          icon="fa-id-card"
+          placeholder="LP"
+          [maxLength]="2"
+          pattern="^[A-Za-z]+$"
+          [(ngModel)]="complemento"
+          name="complemento"
+        ></app-input-field>
+      </div>
+    </div>
+
+    <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <app-button
+      type="submit"
+      variant="primary"
+      [loading]="isLoading"
+      [fullWidth]="true"
+    >
+      {{ isLoading ? 'Enviando datos...' : 'Registrarse' }}
+    </app-button>
+  </form>
+</div>

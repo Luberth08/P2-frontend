@@ -1,0 +1,20 @@
+<div class="input-group" [class.has-error]="errorMessage">
+  <label *ngIf="label">{{ label }} <span *ngIf="required">*</span></label>
+  <div class="input-wrapper">
+    <i *ngIf="icon" [class]="'fas ' + icon"></i>
+    <input
+      [type]="type"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      [required]="required"
+      [attr.maxlength]="maxLength"
+      [attr.minlength]="minLength"
+      [attr.pattern]="pattern"
+      [attr.inputmode]="inputMode"
+      [value]="value"
+      (input)="onInput($event)"
+      (blur)="onTouched()"
+    />
+  </div>
+  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>

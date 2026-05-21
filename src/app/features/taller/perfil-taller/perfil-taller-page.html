@@ -1,0 +1,166 @@
+<div class="perfil-taller-page">
+  <div class="header">
+    <h2>Perfil del Taller</h2>
+    <app-button 
+      *ngIf="isSuperAdmin && taller" 
+      variant="primary" 
+      (click)="openEditModal()"
+    >
+      <i class="fas fa-edit"></i> Editar
+    </app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && taller" class="taller-info">
+    <div class="info-card">
+      <h3>Información General</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label><i class="fas fa-building"></i> Nombre</label>
+          <p>{{ taller.nombre }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-phone"></i> Teléfono</label>
+          <p>{{ taller.telefono }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-envelope"></i> Email</label>
+          <p>{{ taller.email }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-globe"></i> Sitio Web</label>
+          <p>{{ taller.url_web || 'No especificado' }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-clock"></i> Horario</label>
+          <p>{{ taller.hora_inicio || '--:--' }} - {{ taller.hora_fin || '--:--' }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-star"></i> Puntos</label>
+          <p>{{ taller.puntos }}</p>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-info-circle"></i> Estado</label>
+          <p><span class="estado" [class.activo]="taller.estado === 'activo'">{{ taller.estado }}</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3><i class="fas fa-map-marker-alt"></i> Ubicación</h3>
+      <p class="ubicacion-coords">{{ getUbicacionDisplay() }}</p>
+      <div class="map-container">
+        <app-map 
+          [mapId]="'map-view'"
+          [initialLat]="mapLat" 
+          [initialLng]="mapLng" 
+          [interactive]="false"
+        ></app-map>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !taller" class="empty">
+    No se pudo cargar la información del taller
+  </div>
+</div>
+
+<!-- Modal de edición -->
+<app-modal 
+  [title]="'Editar Taller'" 
+  [visible]="showEditModal" 
+  (close)="closeEditModal()"
+>
+  <div class="form-modal">
+    <app-input-field 
+      label="Nombre" 
+      [(ngModel)]="formData.nombre" 
+      [required]="true"
+      icon="fa-building"
+    ></app-input-field>
+
+    <app-input-field 
+      label="Teléfono" 
+      type="tel"
+      [(ngModel)]="formData.telefono" 
+      [required]="true"
+      icon="fa-phone"
+    ></app-input-field>
+
+    <app-input-field 
+      label="Email" 
+      type="email"
+      [(ngModel)]="formData.email" 
+      [required]="true"
+      icon="fa-envelope"
+    ></app-input-field>
+
+    <app-input-field 
+      label="Sitio Web" 
+      type="url"
+      [(ngModel)]="formData.url_web"
+      icon="fa-globe"
+    ></app-input-field>
+
+    <div class="time-inputs">
+      <app-input-field 
+        label="Hora Inicio" 
+        type="time"
+        [(ngModel)]="formData.hora_inicio"
+        icon="fa-clock"
+      ></app-input-field>
+
+      <app-input-field 
+        label="Hora Fin" 
+        type="time"
+        [(ngModel)]="formData.hora_fin"
+        icon="fa-clock"
+      ></app-input-field>
+    </div>
+
+    <div class="ubicacion-section">
+      <label class="section-label">
+        <i class="fas fa-map-marker-alt"></i> Ubicación
+      </label>
+      <p class="section-hint">Haz click en el mapa para seleccionar la ubicación</p>
+      <div class="map-container-modal">
+        <app-map 
+          *ngIf="showMapInModal"
+          [mapId]="'map-edit'"
+          [initialLat]="mapLat" 
+          [initialLng]="mapLng" 
+          [interactive]="true"
+          (locationSelected)="onLocationSelected($event)"
+        ></app-map>
+        <div *ngIf="!showMapInModal" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+        </div>
+      </div>
+      <p class="coords-display">
+        Coordenadas: {{ formData.ubicacion || 'No seleccionada' }}
+      </p>
+    </div>
+
+    <div class="modal-buttons">
+      <app-button 
+        variant="secondary" 
+        (click)="closeEditModal()" 
+        [disabled]="isSaving"
+      >
+        Cancelar
+      </app-button>
+      <app-button 
+        variant="primary" 
+        (click)="saveTaller()" 
+        [disabled]="isSaving" 
+        [loading]="isSaving"
+        loadingText="Guardando..."
+      >
+        Guardar
+      </app-button>
+    </div>
+  </div>
+</app-modal>

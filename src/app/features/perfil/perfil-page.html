@@ -1,0 +1,41 @@
+<div class="perfil-page">
+  <div class="container">
+    <div class="back-button">
+      <app-button-back (clicked)="goBack()"></app-button-back>
+    </div>
+    <div class="main-layout">
+      <app-sidebar
+        [items]="sidebarItems"
+        [activeItemId]="activeSidebarItemId"
+        (itemClick)="onSidebarItemClick($event)"
+      ></app-sidebar>
+      <div class="content">
+        <div *ngIf="isLoading" class="loading-container">
+          <app-loading-spinner></app-loading-spinner>
+        </div>
+        <div *ngIf="!isLoading && profile">
+          <app-personal-info
+            *ngIf="activeSidebarItemId === 'personal'"
+            [profile]="profile"
+            (updateField)="onUpdateField($event)"
+            (photoClick)="openPhotoModal()"
+          ></app-personal-info>
+          <app-change-password
+            *ngIf="activeSidebarItemId === 'password'"
+            [email]="profile.email || ''"
+            (requestOtp)="onRequestOtp()"
+            (changePassword)="onChangePassword($event)"
+          ></app-change-password>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-profile-picture-modal
+  [photoUrl]="profile?.url_img_perfil ?? null"
+  [visible]="modalVisible"
+  (close)="closePhotoModal()"
+  (upload)="onUploadPhoto($event)"
+  (delete)="onDeletePhoto()"
+></app-profile-picture-modal>

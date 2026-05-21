@@ -1,0 +1,15 @@
+<div class="login-page">
+  <div class="container">
+    <div class="back-button">
+      <app-button-back (clicked)="goBack()"></app-button-back>
+    </div>
+
+    <div class="card">
+      <app-login-form
+        [isLoading]="isLoading"
+        [errorMessage]="errorMessage"
+        (submitLogin)="onLogin($event)"
+      ></app-login-form>
+    </div>
+  </div>
+</div>

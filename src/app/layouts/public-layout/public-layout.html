@@ -1,0 +1,20 @@
+<div class="public-layout">
+  <header class="header">
+    <div class="container">
+      <app-logo [name]="projectName"></app-logo>
+      <div class="nav-buttons">
+        <app-button variant="text" routerLink="/login">Iniciar sesión</app-button>
+        <app-button variant="primary" routerLink="/register">Registrarse</app-button>
+      </div>
+    </div>
+  </header>
+  <main class="main">
+    <router-outlet></router-outlet>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <app-logo [name]="projectName"></app-logo>
+      <p class="copyright">© 2026 Asistencia Vial Inteligente. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>

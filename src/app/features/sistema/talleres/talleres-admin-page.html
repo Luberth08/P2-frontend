@@ -1,0 +1,51 @@
+<div class="talleres-admin">
+  <h2>Talleres</h2>
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab==='activos'" (click)="changeTab('activos')">Activos</button>
+    <button class="tab" [class.active]="activeTab==='suspendidos'" (click)="changeTab('suspendidos')">Suspendidos</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="activeTab === 'activos'">
+      <div class="list">
+        <div class="item" *ngFor="let t of activos">
+          <div class="info">
+            <h3>{{ t.nombre }}</h3>
+            <p>{{ t.email }} · {{ t.telefono }}</p>
+          </div>
+          <div class="actions">
+            <app-button variant="secondary" (click)="suspender(t)">Suspender</app-button>
+          </div>
+        </div>
+      </div>
+      <div class="pager">
+        <app-button variant="secondary" (click)="prevPageActivos()" [disabled]="skipActivos===0">Anterior</app-button>
+        <span>{{ skipActivos + 1 }} - {{ Math.min(skipActivos + limit, totalActivos) }} de {{ totalActivos }}</span>
+        <app-button variant="secondary" (click)="nextPageActivos()" [disabled]="skipActivos + limit >= totalActivos">Siguiente</app-button>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'suspendidos'">
+      <div class="list">
+        <div class="item" *ngFor="let t of suspendidos">
+          <div class="info">
+            <h3>{{ t.nombre }}</h3>
+            <p>{{ t.email }} · {{ t.telefono }}</p>
+          </div>
+          <div class="actions">
+            <app-button (click)="activar(t)">Activar</app-button>
+          </div>
+        </div>
+      </div>
+      <div class="pager">
+        <app-button variant="secondary" (click)="prevPageSuspendidos()" [disabled]="skipSuspendidos===0">Anterior</app-button>
+        <span>{{ skipSuspendidos + 1 }} - {{ Math.min(skipSuspendidos + limit, totalSuspendidos) }} de {{ totalSuspendidos }}</span>
+        <app-button variant="secondary" (click)="nextPageSuspendidos()" [disabled]="skipSuspendidos + limit >= totalSuspendidos">Siguiente</app-button>
+      </div>
+    </div>
+  </div>
+</div>

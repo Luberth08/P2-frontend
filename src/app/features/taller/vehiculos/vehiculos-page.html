@@ -1,0 +1,124 @@
+<div class="vehiculos-page">
+  <div class="header">
+    <h2>Vehículos del taller</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir vehículo</app-button>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'activos'" (click)="changeTab('activos')">Actuales</button>
+    <button [class.active]="activeTab === 'inactivos'" (click)="changeTab('inactivos')">Descontinuados</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- Activos -->
+  <div *ngIf="!isLoading && activeTab === 'activos'">
+    <div class="vehiculos-list">
+      <table class="vehiculos-table">
+        <thead>
+          <tr>
+            <th>Matrícula</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of vehiculosActivos">
+            <td>{{ v.matricula }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.anio }}</td>
+            <td>{{ v.tipo }}</td>
+            <td><span class="estado disponible">{{ v.estado }}</span></td>
+            <td>
+              <button class="btn-edit" (click)="openEditModal(v)">Editar</button>
+              <button class="btn-inact" (click)="openInactivateModal(v)">Inactivar</button>
+            </td>
+          </tr>
+          <tr *ngIf="vehiculosActivos.length === 0">
+            <td colspan="7" class="empty">No hay vehículos registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalActivos > limit">
+      <app-button variant="secondary" (click)="prevPageActivos()" [disabled]="skipActivos === 0">Anterior</app-button>
+      <span>Página {{ pageActivos }} de {{ totalPagesActivos }}</span>
+      <app-button variant="secondary" (click)="nextPageActivos()" [disabled]="skipActivos + limit >= totalActivos">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Inactivos -->
+  <div *ngIf="!isLoading && activeTab === 'inactivos'">
+    <div class="vehiculos-list">
+      <table class="vehiculos-table">
+        <thead>
+          <tr>
+            <th>Matrícula</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Tipo</th>
+            <th>Fecha salida / Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of vehiculosInactivos">
+            <td>{{ v.matricula }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.anio }}</td>
+            <td>{{ v.tipo }}</td>
+            <td><span class="estado inactivo">{{ v.estado }}</span></td>
+          </tr>
+          <tr *ngIf="vehiculosInactivos.length === 0">
+            <td colspan="6" class="empty">No hay vehículos descontinuados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" *ngIf="totalInactivos > limit">
+      <app-button variant="secondary" (click)="prevPageInactivos()" [disabled]="skipInactivos === 0">Anterior</app-button>
+      <span>Página {{ pageInactivos }} de {{ totalPagesInactivos }}</span>
+      <app-button variant="secondary" (click)="nextPageInactivos()" [disabled]="skipInactivos + limit >= totalInactivos">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar -->
+  <app-modal [title]="editingVehiculo ? 'Editar vehículo' : 'Añadir vehículo'" [visible]="showFormModal" (close)="closeFormModal()">
+    <div class="form-modal">
+      <app-input-field label="Matrícula" [(ngModel)]="formData.matricula" [required]="true"></app-input-field>
+      <app-input-field label="Marca" [(ngModel)]="formData.marca" [required]="true"></app-input-field>
+      <app-input-field label="Modelo" [(ngModel)]="formData.modelo" [required]="true"></app-input-field>
+      <app-input-field label="Año" type="number" [(ngModel)]="formData.anio" [required]="true"></app-input-field>
+      <app-input-field label="Color" [(ngModel)]="formData.color"></app-input-field>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select [(ngModel)]="formData.tipo" class="custom-select">
+          <option *ngFor="let t of tipos" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeFormModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="saveVehiculo()">{{ editingVehiculo ? 'Guardar' : 'Añadir' }}</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- Modal inactivar -->
+  <app-modal [title]="'Confirmar inactivación'" [visible]="showInactivateModal" (close)="closeInactivateModal()">
+    <div class="confirm-modal">
+      <p>¿Estás seguro de inactivar el vehículo <strong>{{ inactivateMatricula }}</strong>?</p>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeInactivateModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="confirmarInactivar()">Inactivar</app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>

@@ -1,0 +1,566 @@
+<div class="servicios-page">
+  <div class="header">
+    <h2>Gestión de Servicios</h2>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'recientes'" (click)="changeTab('recientes')">
+      Solicitudes Recientes
+    </button>
+    <button [class.active]="activeTab === 'historico'" (click)="changeTab('historico')">
+      Historial Solicitudes
+    </button>
+    <button [class.active]="activeTab === 'en-proceso'" (click)="changeTab('en-proceso')">
+      Servicios en Proceso
+    </button>
+    <button [class.active]="activeTab === 'historico-servicios'" (click)="changeTab('historico-servicios')">
+      Historial Servicios
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SOLICITUDES RECIENTES -->
+  <!-- ============================================================ -->
+  <div *ngIf="!isLoading && activeTab === 'recientes'">
+    <div class="solicitudes-list">
+      <table class="solicitudes-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Sugerido por</th>
+            <th>Distancia (km)</th>
+            <th>Comentario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of solicitudesRecientes">
+            <td>{{ formatFecha(s.fecha) }}</td>
+            <td><span [class]="'estado ' + getEstadoClass(s.estado)">{{ getEstadoTexto(s.estado) }}</span></td>
+            <td>{{ getSugeridoPorText(s.sugerido_por) }}</td>
+            <td>{{ s.distancia_km ? s.distancia_km.toFixed(2) : '-' }}</td>
+            <td>{{ s.comentario || '-' }}</td>
+            <td>
+              <button class="btn-view" (click)="verDetalleSolicitud(s.id)">Ver Detalle</button>
+            </td>
+          </tr>
+          <tr *ngIf="solicitudesRecientes.length === 0">
+            <td colspan="6" class="empty">No hay solicitudes recientes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- HISTORIAL SOLICITUDES -->
+  <!-- ============================================================ -->
+  <div *ngIf="!isLoading && activeTab === 'historico'">
+    <div class="solicitudes-list">
+      <table class="solicitudes-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Sugerido por</th>
+            <th>Distancia (km)</th>
+            <th>Tiene Servicio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of solicitudesHistorico">
+            <td>{{ formatFecha(s.fecha) }}</td>
+            <td><span [class]="'estado ' + getEstadoClass(s.estado)">{{ getEstadoTexto(s.estado) }}</span></td>
+            <td>{{ getSugeridoPorText(s.sugerido_por) }}</td>
+            <td>{{ s.distancia_km ? s.distancia_km.toFixed(2) : '-' }}</td>
+            <td>{{ s.tiene_servicio ? 'Sí' : 'No' }}</td>
+            <td>
+              <button class="btn-view" (click)="verDetalleSolicitud(s.id)">Ver Detalle</button>
+            </td>
+          </tr>
+          <tr *ngIf="solicitudesHistorico.length === 0">
+            <td colspan="6" class="empty">No hay solicitudes en el historial</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SERVICIOS EN PROCESO -->
+  <!-- ============================================================ -->
+  <div *ngIf="!isLoading && activeTab === 'en-proceso'">
+    <div class="servicios-list">
+      <table class="servicios-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Técnicos</th>
+            <th>Vehículos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of serviciosEnProceso">
+            <td>{{ s.id }}</td>
+            <td>{{ formatFecha(s.fecha) }}</td>
+            <td><span [class]="'estado ' + getEstadoClass(s.estado)">{{ getEstadoTexto(s.estado) }}</span></td>
+            <td>
+              <div *ngFor="let t of s.tecnicos_asignados" class="asignado-item">
+                {{ t.nombre_completo }}
+              </div>
+            </td>
+            <td>
+              <div *ngFor="let v of s.vehiculos_asignados" class="asignado-item">
+                {{ v.matricula }} ({{ v.marca }} {{ v.modelo }})
+              </div>
+            </td>
+            <td>
+              <button class="btn-tracking" (click)="abrirModalSeguimiento(s.id)">Seguimiento</button>
+            </td>
+          </tr>
+          <tr *ngIf="serviciosEnProceso.length === 0">
+            <td colspan="6" class="empty">No hay servicios en proceso</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- HISTORIAL SERVICIOS -->
+  <!-- ============================================================ -->
+  <div *ngIf="!isLoading && activeTab === 'historico-servicios'">
+    <div class="servicios-list">
+      <table class="servicios-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Técnicos</th>
+            <th>Vehículos</th>
+            <th>Valoración</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of serviciosHistorico">
+            <td>{{ s.id }}</td>
+            <td>{{ formatFecha(s.fecha) }}</td>
+            <td><span [class]="'estado ' + getEstadoClass(s.estado)">{{ getEstadoTexto(s.estado) }}</span></td>
+            <td>
+              <div *ngFor="let t of s.tecnicos_asignados" class="asignado-item">
+                {{ t.nombre_completo }}
+              </div>
+            </td>
+            <td>
+              <div *ngFor="let v of s.vehiculos_asignados" class="asignado-item">
+                {{ v.matricula }} ({{ v.marca }} {{ v.modelo }})
+              </div>
+            </td>
+            <td>
+              <div *ngIf="(s.estado === 'finalizado' || s.estado === 'completado')" class="valoracion-cell">
+                <ng-container *ngIf="getValoracion(s.id) !== undefined">
+                  <div *ngIf="getValoracion(s.id)" class="valoracion-info">
+                    <div class="estrellas">
+                      <span *ngFor="let estrella of generarEstrellas(getValoracion(s.id)!.puntos)" 
+                            class="estrella">{{ estrella }}</span>
+                    </div>
+                    <div *ngIf="getValoracion(s.id)!.comentario" class="comentario-preview">
+                      {{ getValoracion(s.id)!.comentario }}
+                    </div>
+                  </div>
+                  <div *ngIf="!getValoracion(s.id)" class="sin-valoracion">
+                    Sin valoración
+                  </div>
+                </ng-container>
+                <div *ngIf="getValoracion(s.id) === undefined" class="cargando-valoracion">
+                  Cargando...
+                </div>
+              </div>
+              <div *ngIf="s.estado !== 'finalizado' && s.estado !== 'completado'" class="no-aplica">
+                -
+              </div>
+            </td>
+            <td>
+              <button class="btn-metrics" (click)="abrirModalMetricas(s.id)">Ver Métricas</button>
+            </td>
+          </tr>
+          <tr *ngIf="serviciosHistorico.length === 0">
+            <td colspan="7" class="empty">No hay servicios en el historial</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL DETALLE SOLICITUD -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Detalle de Solicitud'" 
+    [visible]="showDetalleModal" 
+    (close)="closeDetalleModal()"
+    [size]="'large'">
+    <div class="detalle-modal" *ngIf="solicitudDetalle">
+      <!-- Información básica -->
+      <div class="detalle-section">
+        <h3>Información Básica</h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Fecha:</label>
+            <span>{{ formatFecha(solicitudDetalle.fecha) }}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Estado:</label>
+            <span [class]="'estado ' + getEstadoClass(solicitudDetalle.estado)">
+              {{ getEstadoTexto(solicitudDetalle.estado) }}
+            </span>
+          </div>
+          <div class="detalle-item">
+            <label>Sugerido por:</label>
+            <span>{{ getSugeridoPorText(solicitudDetalle.sugerido_por) }}</span>
+          </div>
+          <div class="detalle-item" *ngIf="solicitudDetalle.distancia_km">
+            <label>Distancia:</label>
+            <span>{{ solicitudDetalle.distancia_km.toFixed(2) }} km</span>
+          </div>
+        </div>
+        <div class="detalle-item full-width" *ngIf="solicitudDetalle.comentario">
+          <label>Comentario del cliente:</label>
+          <p>{{ solicitudDetalle.comentario }}</p>
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="detalle-section" *ngIf="solicitudDetalle.ubicacion">
+        <h3>Ubicación</h3>
+        <button class="btn-map" (click)="verEnMapa(solicitudDetalle.ubicacion)">
+          📍 Ver en Mapa
+        </button>
+      </div>
+
+      <!-- Vehículo del cliente -->
+      <div class="detalle-section" *ngIf="solicitudDetalle.vehiculo_cliente">
+        <h3>Vehículo del Cliente</h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Matrícula:</label>
+            <span>{{ solicitudDetalle.vehiculo_cliente.matricula }}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Marca:</label>
+            <span>{{ solicitudDetalle.vehiculo_cliente.marca }}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Modelo:</label>
+            <span>{{ solicitudDetalle.vehiculo_cliente.modelo }}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Año:</label>
+            <span>{{ solicitudDetalle.vehiculo_cliente.anio }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnóstico de la IA -->
+      <div class="detalle-section" *ngIf="solicitudDetalle.diagnostico">
+        <h3>Diagnóstico de la IA</h3>
+        <div class="detalle-item">
+          <label>Descripción:</label>
+          <p>{{ solicitudDetalle.diagnostico.descripcion }}</p>
+        </div>
+        <div class="detalle-item">
+          <label>Nivel de confianza:</label>
+          <span>{{ (solicitudDetalle.diagnostico.nivel_confianza * 100).toFixed(1) }}%</span>
+        </div>
+      </div>
+
+      <!-- Descripción del conductor -->
+      <div class="detalle-section" *ngIf="solicitudDetalle.descripcion_conductor">
+        <h3>Descripción del Conductor</h3>
+        <p>{{ solicitudDetalle.descripcion_conductor }}</p>
+      </div>
+
+      <!-- Evidencias -->
+      <div class="detalle-section" *ngIf="solicitudDetalle.evidencias.length > 0">
+        <h3>Evidencias</h3>
+        
+        <!-- Fotos -->
+        <div class="evidencias-fotos">
+          <h4>Fotos:</h4>
+          <div class="fotos-grid">
+            <ng-container *ngFor="let e of solicitudDetalle.evidencias">
+              <img 
+                *ngIf="e.tipo === 'imagen'"
+                [src]="e.url" 
+                [alt]="'Evidencia ' + e.id"
+                class="foto-evidencia"
+                (error)="onImageError($event, e)">
+            </ng-container>
+          </div>
+          <p *ngIf="!solicitudDetalle.evidencias.some(e => e.tipo === 'imagen')" class="empty">
+            No hay fotos disponibles
+          </p>
+        </div>
+
+        <!-- Audio -->
+        <div class="evidencias-audio">
+          <ng-container *ngFor="let e of solicitudDetalle.evidencias">
+            <div *ngIf="e.tipo === 'audio'">
+              <h4>Audio:</h4>
+              <audio controls [src]="e.url" class="audio-player"></audio>
+              <div *ngIf="e.transcripcion" class="transcripcion">
+                <label>Transcripción:</label>
+                <p>{{ e.transcripcion }}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="modal-actions" *ngIf="solicitudDetalle.estado === 'pendiente'">
+        <app-button variant="secondary" (click)="closeDetalleModal()">Cerrar</app-button>
+        <app-button variant="secondary" class="btn-rechazar" (click)="abrirModalRechazar(solicitudDetalle.id)">
+          Rechazar
+        </app-button>
+        <app-button variant="primary" (click)="abrirModalAsignacion(solicitudDetalle.id)">
+          Aceptar
+        </app-button>
+      </div>
+      <div class="modal-actions" *ngIf="solicitudDetalle.estado !== 'pendiente'">
+        <app-button variant="secondary" (click)="closeDetalleModal()">Cerrar</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL ASIGNACIÓN -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Asignar Recursos al Servicio'" 
+    [visible]="showAsignacionModal" 
+    (close)="closeAsignacionModal()">
+    <div class="asignacion-modal">
+      <!-- Técnicos -->
+      <div class="recursos-section">
+        <h3>Técnicos Disponibles:</h3>
+        <div class="recursos-list">
+          <label *ngFor="let t of tecnicosDisponibles" class="recurso-item">
+            <input 
+              type="checkbox" 
+              [checked]="tecnicosSeleccionados.includes(t.id)"
+              (change)="toggleTecnico(t.id)">
+            <span>{{ t.nombre_completo }}</span>
+            <span class="especialidades" *ngIf="t.especialidades.length > 0">
+              ({{ t.especialidades.join(', ') }})
+            </span>
+          </label>
+          <p *ngIf="tecnicosDisponibles.length === 0" class="empty">
+            No hay técnicos disponibles
+          </p>
+        </div>
+      </div>
+
+      <!-- Vehículos -->
+      <div class="recursos-section">
+        <h3>Vehículos Disponibles:</h3>
+        <div class="recursos-list">
+          <label *ngFor="let v of vehiculosDisponibles" class="recurso-item">
+            <input 
+              type="checkbox" 
+              [checked]="vehiculosSeleccionados.includes(v.id)"
+              (change)="toggleVehiculo(v.id)">
+            <span>{{ v.matricula }} - {{ v.marca }} {{ v.modelo }} ({{ v.tipo }})</span>
+          </label>
+          <p *ngIf="vehiculosDisponibles.length === 0" class="empty">
+            No hay vehículos disponibles
+          </p>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="modal-actions">
+        <app-button variant="secondary" (click)="closeAsignacionModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="confirmarAceptar()">Aceptar Servicio</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL RECHAZAR -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Confirmar Rechazo'" 
+    [visible]="showRechazarModal" 
+    (close)="closeRechazarModal()">
+    <div class="confirm-modal">
+      <p>¿Estás seguro de rechazar esta solicitud de servicio?</p>
+      <div class="modal-actions">
+        <app-button variant="secondary" (click)="closeRechazarModal()">Cancelar</app-button>
+        <app-button variant="primary" class="btn-rechazar" (click)="confirmarRechazar()">Rechazar</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL COMPLETAR SERVICIO -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Completar Servicio'" 
+    [visible]="showCompletarModal" 
+    (close)="closeCompletarModal()">
+    <div class="confirm-modal">
+      <p>¿Estás seguro de marcar este servicio como completado?</p>
+      <p class="info-text">Los técnicos y vehículos asignados quedarán disponibles nuevamente.</p>
+      <div class="modal-actions">
+        <app-button variant="secondary" (click)="closeCompletarModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="confirmarCompletar()">Completar</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL MAPA -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Ubicación del Cliente'" 
+    [visible]="showMapaModal" 
+    (close)="closeMapaModal()"
+    [size]="'large'">
+    <div class="mapa-modal-container" *ngIf="ubicacionMapa">
+      <div class="mapa-modal">
+        <app-map 
+          [initialLat]="ubicacionMapa.lat" 
+          [initialLng]="ubicacionMapa.lon"
+          [interactive]="false"
+          [mapId]="'solicitud-map'">
+        </app-map>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL SEGUIMIENTO (HISTORIAL DE ESTADOS) -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Seguimiento del Servicio #' + servicioIdSeguimiento" 
+    [visible]="showSeguimientoModal" 
+    (close)="closeSeguimientoModal()">
+    <div class="seguimiento-modal">
+      <div *ngIf="loadingHistorial" class="loading-container">
+        <app-loading-spinner></app-loading-spinner>
+        <p>Cargando historial...</p>
+      </div>
+      
+      <div *ngIf="!loadingHistorial && historialEstados.length > 0" class="historial-timeline">
+        <div *ngFor="let estado of historialEstados; let i = index" class="timeline-item">
+          <div class="timeline-marker">
+            <div class="timeline-dot" [class]="getEstadoClass(estado.estado)"></div>
+            <div *ngIf="i < historialEstados.length - 1" class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="estado-info">
+              <h4 [class]="'estado-titulo ' + getEstadoClass(estado.estado)">
+                {{ estado.estado_descripcion }}
+              </h4>
+              <p class="estado-tiempo">{{ formatFecha(estado.tiempo) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loadingHistorial && historialEstados.length === 0" class="empty">
+        No hay historial de estados disponible
+      </div>
+      
+      <div class="modal-actions">
+        <app-button variant="secondary" (click)="closeSeguimientoModal()">Cerrar</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- ============================================================ -->
+  <!-- MODAL MÉTRICAS -->
+  <!-- ============================================================ -->
+  <app-modal 
+    [title]="'Métricas del Servicio #' + servicioIdMetricas" 
+    [visible]="showMetricasModal" 
+    (close)="closeMetricasModal()"
+    [size]="'large'">
+    <div class="metricas-modal">
+      <div *ngIf="loadingMetricas" class="loading-container">
+        <app-loading-spinner></app-loading-spinner>
+        <p>Cargando métricas...</p>
+      </div>
+      
+      <div *ngIf="!loadingMetricas && metricasServicio" class="metricas-content">
+        <!-- Gráfica -->
+        <div class="metricas-chart">
+          <h3>Tiempos del Servicio</h3>
+          <canvas id="metricasChart" width="500" height="300"></canvas>
+        </div>
+        
+        <!-- Detalles -->
+        <div class="metricas-detalles">
+          <h3>Detalles de Métricas</h3>
+          <div class="metricas-grid">
+            <div class="metrica-item tiempo-respuesta">
+              <div class="metrica-icon">⏱️</div>
+              <div class="metrica-info">
+                <label>Tiempo de Respuesta</label>
+                <span class="metrica-valor">{{ formatearTiempo(metricasServicio.tiempo_respuesta) }}</span>
+                <small>Desde solicitud hasta aceptación</small>
+              </div>
+            </div>
+            
+            <div class="metrica-item tiempo-llegada">
+              <div class="metrica-icon">🚗</div>
+              <div class="metrica-info">
+                <label>Tiempo de Llegada</label>
+                <span class="metrica-valor">{{ formatearTiempo(metricasServicio.tiempo_llegada) }}</span>
+                <small>Desde aceptación hasta llegada</small>
+              </div>
+            </div>
+            
+            <div class="metrica-item tiempo-resolucion">
+              <div class="metrica-icon">🔧</div>
+              <div class="metrica-info">
+                <label>Tiempo de Resolución</label>
+                <span class="metrica-valor">{{ formatearTiempo(metricasServicio.tiempo_resolucion) }}</span>
+                <small>Desde llegada hasta finalización</small>
+              </div>
+            </div>
+            
+            <div class="metrica-item tiempo-total" *ngIf="metricasServicio.tiempo_total">
+              <div class="metrica-icon">⏰</div>
+              <div class="metrica-info">
+                <label>Tiempo Total</label>
+                <span class="metrica-valor">{{ formatearTiempo(metricasServicio.tiempo_total) }}</span>
+                <small>Tiempo total del servicio</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loadingMetricas && !metricasServicio" class="empty">
+        No hay métricas disponibles para este servicio
+      </div>
+      
+      <div class="modal-actions">
+        <app-button variant="secondary" (click)="closeMetricasModal()">Cerrar</app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>

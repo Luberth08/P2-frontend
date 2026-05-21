@@ -1,0 +1,98 @@
+<div class="vehiculos-page">
+  <div class="header">
+    <h2>Mis Vehículos</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Nuevo vehículo</app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div class="vehiculos-list" *ngIf="!isLoading">
+    <div class="vehiculo-card" *ngFor="let v of vehiculos">
+      <div class="card-content">
+        <div class="info">
+          <strong>{{ v.matricula }}</strong> - {{ v.marca }} {{ v.modelo }} ({{ v.anio }})
+          <span class="tipo">{{ v.tipo }}</span>
+          <span *ngIf="v.color" class="color">Color: {{ v.color }}</span>
+        </div>
+        <div class="actions">
+          <app-button variant="text" (click)="openEditModal(v)"><i class="fas fa-edit"></i></app-button>
+          <app-button variant="text" (click)="openDeleteModal(v)"><i class="fas fa-trash-alt"></i></app-button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="vehiculos.length === 0" class="empty">No hay vehículos registrados.</div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="total > limit">
+    <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+  </div>
+</div>
+
+<!-- Modal de creación/edición -->
+<app-modal [title]="editingVehiculo ? 'Editar vehículo' : 'Nuevo vehículo'" [visible]="showFormModal" (close)="closeFormModal()">
+  <div class="form-modal">
+    <app-input-field
+      label="Matrícula"
+      type="text"
+      icon="fa-id-card"
+      [required]="true"
+      [maxLength]="20"
+      [(ngModel)]="formData.matricula"
+    ></app-input-field>
+    <app-input-field
+      label="Marca"
+      type="text"
+      icon="fa-car"
+      [required]="true"
+      [maxLength]="100"
+      [(ngModel)]="formData.marca"
+    ></app-input-field>
+    <app-input-field
+      label="Modelo"
+      type="text"
+      icon="fa-car"
+      [required]="true"
+      [maxLength]="100"
+      [(ngModel)]="formData.modelo"
+    ></app-input-field>
+    <app-input-field
+      label="Año"
+      type="number"
+      icon="fa-calendar"
+      [required]="true"
+      [(ngModel)]="formData.anio"
+    ></app-input-field>
+    <app-input-field
+      label="Color"
+      type="text"
+      icon="fa-palette"
+      [(ngModel)]="formData.color"
+    ></app-input-field>
+    <div class="form-group">
+      <label>Tipo *</label>
+      <select [(ngModel)]="formData.tipo" class="custom-select">
+        <option *ngFor="let t of tipos" [value]="t">{{ t | titlecase }}</option>
+      </select>
+    </div>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeFormModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="saveVehiculo()">Guardar</app-button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- Modal de confirmación de eliminación -->
+<app-modal [title]="'Confirmar eliminación'" [visible]="showDeleteModal" (close)="closeDeleteModal()">
+  <div class="confirm-modal">
+    <p>¿Estás seguro de eliminar el vehículo con matrícula <strong>{{ deleteMatricula }}</strong>?</p>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeDeleteModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="confirmDelete()">Eliminar</app-button>
+    </div>
+  </div>
+</app-modal>

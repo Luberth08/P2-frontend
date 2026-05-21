@@ -1,0 +1,30 @@
+<div class="verify-otp">
+  <h2>Verifica tu correo</h2>
+  <p>Hemos enviado un código de verificación a <strong>{{ email }}</strong></p>
+
+  <app-input-field
+    label="Código de verificación"
+    type="text"
+    icon="fa-key"
+    placeholder="123456"
+    [required]="true"
+    [(ngModel)]="code"
+  ></app-input-field>
+
+  <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <app-button
+    type="button"
+    variant="primary"
+    [loading]="isLoading"
+    [fullWidth]="true"
+    (click)="onVerify()"
+  >
+    {{ isLoading ? 'Verificando...' : 'Confirmar registro' }}
+  </app-button>
+
+  <div class="resend">
+    <span>¿No recibiste el código?</span>
+    <button class="btn-link" (click)="onResend()">Reenviar código</button>
+  </div>
+</div>

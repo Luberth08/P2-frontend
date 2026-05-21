@@ -1,0 +1,21 @@
+.btn-back {
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 40px;
+  transition: var(--transition);
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+}

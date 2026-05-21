@@ -1,0 +1,30 @@
+/* styles.scss */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+:root {
+  --color-primary: #932D30;
+  --color-primary-dark: #421413;
+  --color-secondary: #52341A;
+  --color-accent: #B76369;
+  --color-light-bg: #E6E8E5;
+  --color-white: #FFFFFF;
+  --color-text-dark: #2C2C2C;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --border-radius: 16px;
+  --transition: all 0.2s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #F5F2EB 0%, #E8E3DA 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}

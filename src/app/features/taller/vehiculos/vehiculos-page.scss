@@ -1,0 +1,64 @@
+.vehiculos-page {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    button.active {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+  }
+
+  .vehiculos-table {
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .empty {
+      text-align: center;
+      padding: 24px;
+      color: rgba(0,0,0,0.4);
+    }
+  }
+
+  .btn-edit {
+    margin-right: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+  .btn-edit:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+
+  .btn-inact {
+    background: transparent;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+  }
+
+  .estado { &.disponible { color: #1b7a28; } &.inactivo { color: #c0392b; } }
+
+  .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+}

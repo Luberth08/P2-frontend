@@ -1,0 +1,64 @@
+<div class="incidentes-admin">
+  <h2>Tipos de Incidentes</h2>
+  <div class="actions">
+    <app-button variant="primary" (click)="openCreate()" [disabled]="isSaving || isDeleting || loading || showForm">+ Añadir tipo</app-button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container"><app-loading-spinner></app-loading-spinner></div>
+
+  <table *ngIf="!loading" class="table">
+    <thead>
+      <tr><th>Concepto</th><th>Prioridad</th><th>Remolque</th><th>Categoría</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let i of incidentes">
+        <td>{{ i.concepto }}</td>
+        <td>{{ getPriorityLabel(i.prioridad) }}</td>
+        <td>{{ i.requiere_remolque ? 'Sí' : 'No' }}</td>
+        <td>{{ i.categoria_nombre || '-' }}</td>
+        <td>
+          <app-button variant="secondary" (click)="openEdit(i)" [disabled]="isSaving || isDeleting || loading || showForm">Editar</app-button>
+          <app-button (click)="confirmDelete(i.id)" [disabled]="isSaving || isDeleting || loading || showForm">Eliminar</app-button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pager">
+    <app-button variant="secondary" (click)="prevPage()" [disabled]="skip===0">Anterior</app-button>
+    <span>{{ skip + 1 }} - {{ Math.min(skip + limit, total) }} de {{ total }}</span>
+    <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+  </div>
+
+  <app-modal [title]="editing ? 'Editar tipo' : 'Nuevo tipo de incidente'" [visible]="showForm" (close)="showForm=false">
+    <h3>{{ editing ? 'Editar tipo' : 'Nuevo tipo de incidente' }}</h3>
+    <app-input-field [(ngModel)]="formData.concepto" label="Concepto"></app-input-field>
+    <label>Prioridad</label>
+    <select [(ngModel)]="formData.prioridad">
+      <option *ngFor="let p of prioridades" [ngValue]="p.value">{{ p.label }}</option>
+    </select>
+    <label>Requiere remolque</label>
+    <select [(ngModel)]="formData.requiere_remolque">
+      <option [ngValue]="true">Sí</option>
+      <option [ngValue]="false">No</option>
+    </select>
+    <label>Categoría</label>
+    <select [(ngModel)]="formData.id_categoria_incidente">
+      <option *ngFor="let c of categorias" [ngValue]="c.id">{{ c.nombre }}</option>
+    </select>
+
+    <div class="modal-actions">
+      <app-button variant="secondary" (click)="showForm=false" [disabled]="isSaving">Cancelar</app-button>
+      <app-button variant="primary" (click)="save()" [loading]="isSaving" [disabled]="isSaving">{{ editing ? 'Guardar' : 'Añadir' }}</app-button>
+    </div>
+  </app-modal>
+
+  <app-modal title="Confirmar eliminación" [visible]="showDelete" (close)="showDelete=false">
+    <h3>Confirmar eliminación</h3>
+    <p>¿Eliminar este tipo de incidente?</p>
+    <div class="modal-actions">
+      <app-button variant="secondary" (click)="showDelete=false" [disabled]="isDeleting">Cancelar</app-button>
+      <app-button variant="primary" (click)="doDelete()" [loading]="isDeleting" [disabled]="isDeleting">Eliminar</app-button>
+    </div>
+  </app-modal>
+</div>

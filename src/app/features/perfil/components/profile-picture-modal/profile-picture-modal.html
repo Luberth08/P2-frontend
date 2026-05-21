@@ -1,0 +1,12 @@
+<app-modal [title]="'Foto de perfil'" [visible]="visible" (close)="close.emit()">
+  <div class="modal-content">
+    <div class="photo-preview">
+      <img [src]="photoUrl || 'assets/default-avatar.png'" alt="Foto de perfil">
+    </div>
+    <div class="actions">
+      <app-button variant="primary" (click)="fileInput.click()">Subir nueva foto</app-button>
+      <input type="file" #fileInput accept="image/jpeg,image/png" style="display:none" (change)="onFileSelected($event)">
+      <app-button variant="text" (click)="delete.emit()" *ngIf="photoUrl">Eliminar foto</app-button>
+    </div>
+  </div>
+</app-modal>

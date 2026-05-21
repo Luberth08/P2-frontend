@@ -1,0 +1,110 @@
+.vehiculos-page {
+  padding: 1rem;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    h2 {
+      margin: 0;
+      color: var(--color-primary-dark);
+    }
+  }
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .vehiculos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .vehiculo-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+    .card-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      .info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: baseline;
+        .tipo {
+          background: var(--color-light-bg);
+          padding: 0.2rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.75rem;
+        }
+        .color {
+          color: #666;
+          font-size: 0.85rem;
+        }
+      }
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+        app-button {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+  .empty {
+    text-align: center;
+    padding: 2rem;
+    color: #888;
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    span {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.form-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  .form-group {
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+    .custom-select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+    }
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+.confirm-modal {
+  text-align: center;
+  p {
+    margin-bottom: 1.5rem;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

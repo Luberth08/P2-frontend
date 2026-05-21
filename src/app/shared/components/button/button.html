@@ -1,0 +1,14 @@
+<button
+  [type]="type"
+  [class]="'btn btn-' + variant"
+  [class.full-width]="fullWidth"
+  [disabled]="disabled || loading"
+>
+  <ng-container *ngIf="!loading">
+    <ng-content></ng-content>
+  </ng-container>
+  <ng-container *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span>{{ loadingText }}</span>
+  </ng-container>
+</button>

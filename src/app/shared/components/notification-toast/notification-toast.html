@@ -1,0 +1,5 @@
+<div class="toast-notification" *ngIf="notification" [class.fade-out]="closing" [class]="notification.type">
+  <i [class]="'fas ' + getIcon()"></i>
+  <span>{{ notification.message }}</span>
+  <button class="close-btn" (click)="close()">&times;</button>
+</div>

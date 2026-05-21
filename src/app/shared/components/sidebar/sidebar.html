@@ -1,0 +1,17 @@
+<div class="sidebar" [class.collapsed]="collapsed">
+  <button class="toggle-btn" (click)="toggleCollapse()">
+    <i class="fas fa-bars"></i>
+  </button>
+  <nav>
+    <ul>
+      <ng-container *ngFor="let item of items">
+        <li *ngIf="item.visible">
+          <a [class.active]="activeItemId === item.id" (click)="selectItem(item.id)">
+            <i [class]="'fas ' + item.icon"></i>
+            <span *ngIf="!collapsed">{{ item.label }}</span>
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+  </nav>
+</div>

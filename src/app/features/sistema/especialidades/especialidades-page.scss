@@ -1,0 +1,38 @@
+.especialidades-page {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .especialidades-table {
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .empty { text-align: center; padding: 24px; color: rgba(0,0,0,0.4); }
+  }
+
+  .btn-edit {
+    margin-right: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-delete {
+    background: transparent;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+  }
+
+  .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+}

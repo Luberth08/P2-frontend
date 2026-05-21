@@ -1,0 +1,62 @@
+<div class="solicitudes-pendientes-page">
+  <div class="header">
+    <h2>Solicitudes de afiliación pendientes</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div class="solicitudes-list" *ngIf="!isLoading">
+    <div class="solicitud-card" *ngFor="let s of solicitudes" (click)="openDetail(s)">
+      <div class="card-header">
+        <h3>{{ s.nombre }}</h3>
+        <span class="estado estado-pendiente">Pendiente</span>
+      </div>
+      <div class="card-body">
+        <p><strong>Solicitante:</strong> {{ s.nombre_usuario_solicita }}</p>
+        <p><strong>Fecha:</strong> {{ s.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+    <div *ngIf="solicitudes.length === 0" class="empty">No hay solicitudes pendientes.</div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="total > limit">
+    <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+  </div>
+</div>
+
+<!-- Modal de detalle -->
+<app-modal [title]="'Detalle de solicitud'" [visible]="showDetailModal" (close)="closeModal()">
+  <div class="detail-modal" *ngIf="selectedSolicitud">
+    <div class="info">
+      <p><strong>Nombre del taller:</strong> {{ selectedSolicitud.nombre }}</p>
+      <p><strong>Solicitante:</strong> {{ selectedSolicitud.nombre_usuario_solicita }}</p>
+      <p><strong>Teléfono:</strong> {{ selectedSolicitud.telefono }}</p>
+      <p><strong>Email:</strong> {{ selectedSolicitud.email }}</p>
+      <p *ngIf="selectedSolicitud.comentario"><strong>Comentario:</strong> {{ selectedSolicitud.comentario }}</p>
+      <p><strong>Fecha de solicitud:</strong> {{ selectedSolicitud.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+    <div class="map-container">
+      <label>Ubicación seleccionada:</label>
+      <app-map [initialLat]="getLat(selectedSolicitud.ubicacion)" [initialLng]="getLng(selectedSolicitud.ubicacion)" [interactive]="false"></app-map>
+      <small>{{ selectedSolicitud.ubicacion }}</small>
+    </div>
+    <div class="revision">
+      <app-input-field
+        label="Comentario de revisión (opcional)"
+        type="text"
+        icon="fa-comment"
+        [(ngModel)]="comentarioRevision"
+      ></app-input-field>
+    </div>
+    <div class="modal-buttons">
+      <app-button variant="secondary" (click)="closeModal()">Cancelar</app-button>
+      <app-button variant="primary" (click)="aprobar()" [loading]="procesando">Aprobar</app-button>
+      <app-button variant="secondary" (click)="rechazar()" [loading]="procesando">Rechazar</app-button>
+    </div>
+  </div>
+</app-modal>

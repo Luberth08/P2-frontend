@@ -1,0 +1,99 @@
+<div class="configuracion-page">
+  <div class="header">
+    <h2>Configurar Criterios</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir</app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div class="table-container">
+      <table class="configuracion-table">
+        <thead>
+          <tr>
+            <th>Clave</th>
+            <th>Valor</th>
+            <th>ID Usuario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let config of configuraciones">
+            <td><strong>{{ config.clave }}</strong></td>
+            <td>{{ config.valor }}</td>
+            <td>{{ config.id_usuario }}</td>
+            <td>
+              <button class="btn-edit" (click)="openEditModal(config)">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn-delete" (click)="openDeleteModal(config)">
+                <i class="fas fa-trash-alt"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="configuraciones.length === 0">
+            <td colspan="4" class="empty">No hay configuraciones</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="total > limit">
+      <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+      <span>Página {{ currentPage }} de {{ totalPages }}</span>
+      <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar -->
+  <app-modal [title]="editing ? 'Editar configuración' : 'Añadir configuración'" [visible]="showFormModal" (close)="closeFormModal()">
+    <div class="form-modal">
+      <app-input-field 
+        label="Clave" 
+        [(ngModel)]="formData.clave" 
+        [required]="true"
+        [disabled]="editing !== null"
+        icon="fa-key"
+      ></app-input-field>
+      <app-input-field 
+        label="Valor" 
+        [(ngModel)]="formData.valor" 
+        [required]="true"
+        icon="fa-tag"
+      ></app-input-field>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeFormModal()" [disabled]="isSaving">Cancelar</app-button>
+        <app-button 
+          variant="primary" 
+          (click)="saveConfiguracion()" 
+          [disabled]="isSaving" 
+          [loading]="isSaving"
+          [loadingText]="editing ? 'Guardando...' : 'Añadiendo...'"
+        >
+          {{ editing ? 'Guardar' : 'Añadir' }}
+        </app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- Modal eliminar -->
+  <app-modal [title]="'Confirmar eliminación'" [visible]="showDeleteModal" (close)="closeDeleteModal()">
+    <div class="confirm-modal">
+      <p>¿Está seguro de eliminar la configuración con clave <strong>{{ deleteClave }}</strong>?</p>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeDeleteModal()" [disabled]="isDeleting">Cancelar</app-button>
+        <app-button 
+          variant="primary" 
+          (click)="confirmDelete()" 
+          [disabled]="isDeleting" 
+          [loading]="isDeleting"
+          loadingText="Eliminando..."
+        >
+          Eliminar
+        </app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>

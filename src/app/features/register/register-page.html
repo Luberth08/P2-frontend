@@ -1,0 +1,25 @@
+<div class="register-page">
+  <div class="container">
+    <div class="back-button">
+      <app-button-back (clicked)="goBack()"></app-button-back>
+    </div>
+
+    <div class="card">
+      <app-register-form
+        *ngIf="step === 'form'"
+        [isLoading]="isLoading"
+        [errorMessage]="errorMessage"
+        (submitForm)="onFormSubmit($event)"
+      ></app-register-form>
+
+      <app-verify-otp
+        *ngIf="step === 'otp'"
+        [email]="email"
+        [isLoading]="isLoading"
+        [errorMessage]="errorMessage"
+        (verify)="onOtpVerify($event)"
+        (resend)="onResendOtp()"
+      ></app-verify-otp>
+    </div>
+  </div>
+</div>

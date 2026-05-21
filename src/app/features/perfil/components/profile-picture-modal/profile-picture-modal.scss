@@ -1,0 +1,14 @@
+.modal-content {
+  text-align: center;
+  .photo-preview img {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

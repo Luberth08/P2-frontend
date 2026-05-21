@@ -1,0 +1,66 @@
+<div class="especialidades-page">
+  <div class="header">
+    <h2>Especialidades</h2>
+    <app-button variant="primary" (click)="openCreateModal()">+ Añadir especialidad</app-button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div class="table-container">
+      <table class="especialidades-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of especialidades">
+            <td>{{ e.nombre }}</td>
+            <td>{{ e.descripcion || '-' }}</td>
+            <td>
+              <button class="btn-edit" (click)="openEditModal(e)">Editar</button>
+              <button class="btn-delete" (click)="openDeleteModal(e)">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="especialidades.length === 0">
+            <td colspan="3" class="empty">No hay especialidades</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="total > limit">
+      <app-button variant="secondary" (click)="prevPage()" [disabled]="skip === 0">Anterior</app-button>
+      <span>Página {{ currentPage }} de {{ totalPages }}</span>
+      <app-button variant="secondary" (click)="nextPage()" [disabled]="skip + limit >= total">Siguiente</app-button>
+    </div>
+  </div>
+
+  <!-- Modal crear/editar -->
+  <app-modal [title]="editing ? 'Editar especialidad' : 'Añadir especialidad'" [visible]="showFormModal" (close)="closeFormModal()">
+    <div class="form-modal">
+      <app-input-field label="Nombre" [(ngModel)]="formData.nombre" [required]="true"></app-input-field>
+      <app-input-field label="Descripción" [(ngModel)]="formData.descripcion"></app-input-field>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeFormModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="saveEspecialidad()">{{ editing ? 'Guardar' : 'Añadir' }}</app-button>
+      </div>
+    </div>
+  </app-modal>
+
+  <!-- Modal eliminar -->
+  <app-modal [title]="'Confirmar eliminación'" [visible]="showDeleteModal" (close)="closeDeleteModal()">
+    <div class="confirm-modal">
+      <p>¿Eliminar la especialidad <strong>{{ deleteNombre }}</strong>?</p>
+      <div class="modal-buttons">
+        <app-button variant="secondary" (click)="closeDeleteModal()">Cancelar</app-button>
+        <app-button variant="primary" (click)="confirmDelete()">Eliminar</app-button>
+      </div>
+    </div>
+  </app-modal>
+</div>
