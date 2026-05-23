@@ -70,10 +70,13 @@ export class VehiculosTallerPage implements OnInit {
 
   cargarActivos() {
     this.isLoading = true;
-    this.vehiculoService.list(this.tallerId, 'disponible', this.skipActivos, this.limit).subscribe({
+    // Cargar todos los vehículos activos (disponible, en_servicio, en_mantenimiento)
+    // No pasamos estado para obtener todos
+    this.vehiculoService.list(this.tallerId, undefined, this.skipActivos, this.limit).subscribe({
       next: (res) => {
-        this.vehiculosActivos = res.items;
-        this.totalActivos = res.total;
+        // Filtrar solo los que NO son inactivos
+        this.vehiculosActivos = res.items.filter(v => v.estado !== 'inactivo');
+        this.totalActivos = this.vehiculosActivos.length;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -192,5 +195,26 @@ export class VehiculosTallerPage implements OnInit {
         this.closeInactivateModal();
       }
     });
+  }
+
+  // Helpers para mostrar estado
+  getEstadoClass(estado: string): string {
+    const map: any = {
+      'disponible': 'estado-disponible',
+      'en_servicio': 'estado-en-servicio',
+      'en_mantenimiento': 'estado-mantenimiento',
+      'inactivo': 'estado-inactivo'
+    };
+    return map[estado] || '';
+  }
+
+  getEstadoTexto(estado: string): string {
+    const map: any = {
+      'disponible': 'Disponible',
+      'en_servicio': 'En Servicio',
+      'en_mantenimiento': 'En Mantenimiento',
+      'inactivo': 'Inactivo'
+    };
+    return map[estado] || estado;
   }
 }

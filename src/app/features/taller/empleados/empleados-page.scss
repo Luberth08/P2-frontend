@@ -47,8 +47,7 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 500;
-      &.estado-activo { background: #d4edda; color: #155724; }
-      &.estado-disponible { background: #cce5ff; color: #004085; }
+      &.estado-disponible { background: #d4edda; color: #155724; }
       &.estado-en-servicio { background: #fff3cd; color: #856404; }
       &.estado-suspendido { background: #f8d7da; color: #721c24; }
     }
