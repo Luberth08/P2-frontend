@@ -33,7 +33,7 @@
             <td>{{ emp.usuario_email }}</td>
             <td>{{ emp.rol === 'admin_taller' ? 'Administrador' : 'Super Administrador' }}</td>
             <td>{{ emp.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
-            <td><span class="estado activo">Activo</span></td>
+            <td><span [class]="'estado ' + getEstadoClass(emp.estado)">{{ getEstadoTexto(emp.estado) }}</span></td>
             <td>
               <button class="btn-suspend" (click)="openSuspendModal(emp)">Suspender</button>
             </td>
@@ -72,7 +72,7 @@
             <td>{{ emp.rol === 'admin_taller' ? 'Administrador' : 'Super Administrador' }}</td>
             <td>{{ emp.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
             <td>{{ emp.fecha_salida | date:'dd/MM/yyyy' }}</td>
-            <td><span class="estado suspendido">Suspendido</span></td>
+            <td><span [class]="'estado ' + getEstadoClass(emp.estado)">{{ getEstadoTexto(emp.estado) }}</span></td>
           </tr>
           <tr *ngIf="empleadosSuspendidos.length === 0">
             <td colspan="6" class="empty">No hay empleados suspendidos</td>

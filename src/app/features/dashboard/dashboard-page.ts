@@ -10,7 +10,6 @@ import { Tabs, TabItem } from '../../shared/components/tabs/tabs';
 import { Sidebar, SidebarItem } from '../../shared/components/sidebar/sidebar';
 import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 import { NormalView } from './views/normal-view';
-import { TallerView } from './views/taller-view';
 import { SistemaView } from './views/sistema-view';
 import { VehiculosPage } from '../vehiculos/vehiculos-page';
 import { SolicitudesPage } from '../solicitudes/solicitudes-page';
@@ -31,7 +30,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, TallerView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage],
+  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage],
   templateUrl: './dashboard-page.html',
   styleUrls: ['./dashboard-page.scss']
 })
@@ -153,7 +152,6 @@ export class DashboardPage implements OnInit {
     } else if (tabId === 'taller') {
       this.sidebarItems = [
         { id: 'perfil', label: 'Perfil del Taller', icon: 'fa-building', visible: true },
-        { id: 'solicitudes', label: 'Solicitudes', icon: 'fa-clipboard-list', visible: true },
         { id: 'servicios', label: 'Gestión de Servicios', icon: 'fa-tools', visible: true },
         { id: 'vehiculos', label: 'Vehículos', icon: 'fa-car', visible: true },
         { id: 'tecnicos', label: 'Técnicos', icon: 'fa-users', visible: true },

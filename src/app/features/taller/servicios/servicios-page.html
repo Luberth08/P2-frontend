@@ -46,7 +46,13 @@
             <td>{{ s.distancia_km ? s.distancia_km.toFixed(2) : '-' }}</td>
             <td>{{ s.comentario || '-' }}</td>
             <td>
-              <button class="btn-view" (click)="verDetalleSolicitud(s.id)">Ver Detalle</button>
+              <button 
+                class="btn-view" 
+                (click)="verDetalleSolicitud(s.id)"
+                [disabled]="loadingDetalle">
+                <span *ngIf="!loadingDetalle">Ver Detalle</span>
+                <span *ngIf="loadingDetalle" class="loading-spinner">Cargando...</span>
+              </button>
             </td>
           </tr>
           <tr *ngIf="solicitudesRecientes.length === 0">
@@ -352,36 +358,46 @@
     [visible]="showAsignacionModal" 
     (close)="closeAsignacionModal()">
     <div class="asignacion-modal">
-      <!-- Técnicos -->
-      <div class="recursos-section">
-        <h3>Técnicos Disponibles:</h3>
-        <div class="recursos-list">
-          <label *ngFor="let t of tecnicosDisponibles" class="recurso-item">
-            <input 
-              type="checkbox" 
-              [checked]="tecnicosSeleccionados.includes(t.id)"
-              (change)="toggleTecnico(t.id)">
-            <span>{{ t.nombre_completo }}</span>
-            <span class="especialidades" *ngIf="t.especialidades.length > 0">
-              ({{ t.especialidades.join(', ') }})
-            </span>
-          </label>
-          <p *ngIf="tecnicosDisponibles.length === 0" class="empty">
-            No hay técnicos disponibles
-          </p>
-        </div>
+      <!-- Loading de recursos -->
+      <div *ngIf="loadingRecursos" class="loading-recursos">
+        <app-loading-spinner></app-loading-spinner>
+        <p>Cargando técnicos y vehículos disponibles...</p>
       </div>
 
-      <!-- Vehículos -->
-      <div class="recursos-section">
-        <h3>Vehículos Disponibles:</h3>
-        <div class="recursos-list">
-          <label *ngFor="let v of vehiculosDisponibles" class="recurso-item">
-            <input 
-              type="checkbox" 
-              [checked]="vehiculosSeleccionados.includes(v.id)"
-              (change)="toggleVehiculo(v.id)">
-            <span>{{ v.matricula }} - {{ v.marca }} {{ v.modelo }} ({{ v.tipo }})</span>
+      <!-- Contenido cuando ya cargó -->
+      <div *ngIf="!loadingRecursos">
+        <!-- Técnicos -->
+        <div class="recursos-section">
+          <h3>Técnicos Disponibles:</h3>
+          <div class="recursos-list">
+            <label *ngFor="let t of tecnicosDisponibles" class="recurso-item">
+              <input 
+                type="checkbox" 
+                [checked]="tecnicosSeleccionados.includes(t.id)"
+                (change)="toggleTecnico(t.id)"
+                [disabled]="aceptandoServicio">
+              <span>{{ t.nombre_completo }}</span>
+              <span class="especialidades" *ngIf="t.especialidades.length > 0">
+                ({{ t.especialidades.join(', ') }})
+              </span>
+            </label>
+            <p *ngIf="tecnicosDisponibles.length === 0" class="empty">
+              No hay técnicos disponibles
+            </p>
+          </div>
+        </div>
+
+        <!-- Vehículos -->
+        <div class="recursos-section">
+          <h3>Vehículos Disponibles:</h3>
+          <div class="recursos-list">
+            <label *ngFor="let v of vehiculosDisponibles" class="recurso-item">
+              <input 
+                type="checkbox" 
+                [checked]="vehiculosSeleccionados.includes(v.id)"
+                (change)="toggleVehiculo(v.id)"
+                [disabled]="aceptandoServicio">
+              <span>{{ v.matricula }} - {{ v.marca }} {{ v.modelo }} ({{ v.tipo }})</span>
           </label>
           <p *ngIf="vehiculosDisponibles.length === 0" class="empty">
             No hay vehículos disponibles
@@ -389,10 +405,22 @@
         </div>
       </div>
 
-      <!-- Botones -->
-      <div class="modal-actions">
-        <app-button variant="secondary" (click)="closeAsignacionModal()">Cancelar</app-button>
-        <app-button variant="primary" (click)="confirmarAceptar()">Aceptar Servicio</app-button>
+        <!-- Botones -->
+        <div class="modal-actions">
+          <app-button 
+            variant="secondary" 
+            (click)="closeAsignacionModal()"
+            [disabled]="aceptandoServicio">
+            Cancelar
+          </app-button>
+          <app-button 
+            variant="primary" 
+            (click)="confirmarAceptar()"
+            [disabled]="aceptandoServicio">
+            <span *ngIf="!aceptandoServicio">Aceptar Servicio</span>
+            <span *ngIf="aceptandoServicio">Aceptando...</span>
+          </app-button>
+        </div>
       </div>
     </div>
   </app-modal>

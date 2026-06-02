@@ -42,6 +42,7 @@ export class ServiciosTallerPage implements OnInit {
   // Modal detalle solicitud
   showDetalleModal = false;
   solicitudDetalle: SolicitudServicioDetalle | null = null;
+  loadingDetalle = false;
 
   // Modal asignación
   showAsignacionModal = false;
@@ -50,6 +51,8 @@ export class ServiciosTallerPage implements OnInit {
   vehiculosDisponibles: VehiculoDisponible[] = [];
   tecnicosSeleccionados: number[] = [];
   vehiculosSeleccionados: number[] = [];
+  loadingRecursos = false;
+  aceptandoServicio = false;
 
   // Modal mapa
   showMapaModal = false;
@@ -224,6 +227,7 @@ export class ServiciosTallerPage implements OnInit {
   // ============================================================
 
   verDetalleSolicitud(solicitudId: number) {
+    this.loadingDetalle = true;
     this.serviciosService.obtenerDetalleSolicitud(solicitudId, this.tallerId).subscribe({
       next: (data) => {
         this.solicitudDetalle = data;
@@ -232,10 +236,13 @@ export class ServiciosTallerPage implements OnInit {
         console.log('Fotos:', data.evidencias.filter(e => e.tipo === 'imagen'));
         console.log('Audio:', data.evidencias.filter(e => e.tipo === 'audio'));
         this.showDetalleModal = true;
+        this.loadingDetalle = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
+        this.loadingDetalle = false;
         this.notificationService.showError('Error al cargar detalle de solicitud');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -254,31 +261,54 @@ export class ServiciosTallerPage implements OnInit {
     this.solicitudIdAsignar = solicitudId;
     this.tecnicosSeleccionados = [];
     this.vehiculosSeleccionados = [];
+    this.loadingRecursos = true;
     
     // Cargar recursos disponibles
     this.serviciosService.listarTecnicosDisponibles(this.tallerId).subscribe({
       next: (tecnicos) => {
-        this.tecnicosDisponibles = tecnicos;
-        this.cdr.detectChanges();
+        // Filtrar duplicados por ID (por si acaso)
+        const tecnicosUnicos = tecnicos.filter((tecnico, index, self) =>
+          index === self.findIndex((t) => t.id === tecnico.id)
+        );
+        this.tecnicosDisponibles = tecnicosUnicos;
+        console.log('Técnicos disponibles:', this.tecnicosDisponibles);
+        this.checkRecursosLoaded();
       },
       error: () => {
+        this.loadingRecursos = false;
         this.notificationService.showError('Error al cargar técnicos disponibles');
+        this.cdr.detectChanges();
       }
     });
 
     this.serviciosService.listarVehiculosDisponibles(this.tallerId).subscribe({
       next: (vehiculos) => {
-        this.vehiculosDisponibles = vehiculos;
-        this.cdr.detectChanges();
+        // Filtrar duplicados por ID (por si acaso)
+        const vehiculosUnicos = vehiculos.filter((vehiculo, index, self) =>
+          index === self.findIndex((v) => v.id === vehiculo.id)
+        );
+        this.vehiculosDisponibles = vehiculosUnicos;
+        console.log('Vehículos disponibles:', this.vehiculosDisponibles);
+        this.checkRecursosLoaded();
       },
       error: () => {
+        this.loadingRecursos = false;
         this.notificationService.showError('Error al cargar vehículos disponibles');
+        this.cdr.detectChanges();
       }
     });
 
     this.showAsignacionModal = true;
     this.closeDetalleModal();
     this.cdr.detectChanges();
+  }
+
+  checkRecursosLoaded() {
+    // Verificar si ambos recursos han sido cargados
+    if (this.tecnicosDisponibles.length >= 0 && this.vehiculosDisponibles.length >= 0) {
+      this.loadingRecursos = false;
+      this.cdr.detectChanges();
+    }
   }
 
   closeAsignacionModal() {
@@ -326,8 +356,10 @@ export class ServiciosTallerPage implements OnInit {
       vehiculos_ids: this.vehiculosSeleccionados
     };
 
+    this.aceptandoServicio = true;
     this.serviciosService.aceptarSolicitud(this.solicitudIdAsignar, this.tallerId, data).subscribe({
       next: () => {
+        this.aceptandoServicio = false;
         this.closeAsignacionModal();
         setTimeout(() => {
           this.notificationService.showSuccess('Solicitud aceptada exitosamente');
@@ -335,7 +367,9 @@ export class ServiciosTallerPage implements OnInit {
         }, 0);
       },
       error: (err) => {
+        this.aceptandoServicio = false;
         this.notificationService.showError(err.error?.detail || 'Error al aceptar solicitud');
+        this.cdr.detectChanges();
       }
     });
   }

@@ -58,7 +58,32 @@
     cursor: pointer;
   }
 
-  .estado { &.disponible { color: #1b7a28; } &.inactivo { color: #c0392b; } }
+  .estado { 
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    
+    &.estado-disponible { 
+      color: #1b7a28;
+      background-color: #d4edda;
+    }
+    
+    &.estado-en-servicio { 
+      color: #856404;
+      background-color: #fff3cd;
+    }
+    
+    &.estado-mantenimiento { 
+      color: #004085;
+      background-color: #cce5ff;
+    }
+    
+    &.estado-inactivo { 
+      color: #721c24;
+      background-color: #f8d7da;
+    }
+  }
 
   .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 }

@@ -40,7 +40,6 @@
             </div>
             <div *ngIf="!loadingTalleres && selectedTallerId">
               <app-perfil-taller-page *ngIf="currentView === 'taller_perfil'" [tallerId]="selectedTallerId"></app-perfil-taller-page>
-              <app-taller-view *ngIf="currentView === 'taller_solicitudes'"></app-taller-view>
               <app-servicios-taller-page *ngIf="currentView === 'taller_servicios'" [tallerId]="selectedTallerId"></app-servicios-taller-page>
               <app-vehiculos-taller-page *ngIf="currentView === 'taller_vehiculos'" [tallerId]="selectedTallerId"></app-vehiculos-taller-page>
               <app-tecnicos-page *ngIf="currentView === 'taller_tecnicos'" [tallerId]="selectedTallerId"></app-tecnicos-page>

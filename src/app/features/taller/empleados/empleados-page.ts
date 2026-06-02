@@ -79,12 +79,13 @@ export class EmpleadosPage implements OnInit, OnChanges {
   cargarActivos() {
     console.log('Cargando empleados activos - tallerId:', this.tallerId);
     this.isLoading = true;
-    // Empleados activos tienen estado 'activo' en el backend
-    this.empleadoService.listar(this.tallerId, 'activo', this.skipActivos, this.limit).subscribe({
+    // Cargar todos los empleados (sin filtro de estado) y filtrar en el frontend
+    this.empleadoService.listar(this.tallerId, undefined, this.skipActivos, this.limit).subscribe({
       next: (res) => {
-        console.log('Empleados activos recibidos:', res);
-        this.empleadosActivos = res.items;
-        this.totalActivos = res.total;
+        console.log('Empleados recibidos:', res);
+        // Filtrar solo los que NO están suspendidos (disponible o en_servicio)
+        this.empleadosActivos = res.items.filter(e => e.estado !== 'suspendido');
+        this.totalActivos = this.empleadosActivos.length;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -227,5 +228,24 @@ export class EmpleadosPage implements OnInit, OnChanges {
         this.closeSuspendModal();
       }
     });
+  }
+
+  // Helpers para mostrar estado
+  getEstadoClass(estado: string): string {
+    const map: any = {
+      'disponible': 'estado-disponible',
+      'en_servicio': 'estado-en-servicio',
+      'suspendido': 'estado-suspendido'
+    };
+    return map[estado] || '';
+  }
+
+  getEstadoTexto(estado: string): string {
+    const map: any = {
+      'disponible': 'Disponible',
+      'en_servicio': 'En Servicio',
+      'suspendido': 'Suspendido'
+    };
+    return map[estado] || estado;
   }
 }

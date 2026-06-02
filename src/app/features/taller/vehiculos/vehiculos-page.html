@@ -35,7 +35,7 @@
             <td>{{ v.modelo }}</td>
             <td>{{ v.anio }}</td>
             <td>{{ v.tipo }}</td>
-            <td><span class="estado disponible">{{ v.estado }}</span></td>
+            <td><span [class]="'estado ' + getEstadoClass(v.estado)">{{ getEstadoTexto(v.estado) }}</span></td>
             <td>
               <button class="btn-edit" (click)="openEditModal(v)">Editar</button>
               <button class="btn-inact" (click)="openInactivateModal(v)">Inactivar</button>
@@ -75,7 +75,7 @@
             <td>{{ v.modelo }}</td>
             <td>{{ v.anio }}</td>
             <td>{{ v.tipo }}</td>
-            <td><span class="estado inactivo">{{ v.estado }}</span></td>
+            <td><span [class]="'estado ' + getEstadoClass(v.estado)">{{ getEstadoTexto(v.estado) }}</span></td>
           </tr>
           <tr *ngIf="vehiculosInactivos.length === 0">
             <td colspan="6" class="empty">No hay vehículos descontinuados</td>
