@@ -1,19 +1,29 @@
 // src/app/core/services/auth.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { FcmService } from './fcm.service';
+import { WebPushService } from './web-push.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = environment.apiUrl;
+  private fcmService = inject(FcmService);
+  private webPushService = inject(WebPushService);
 
   constructor(private http: HttpClient) {}
 
   login(credentials: { email: string; password: string }) {
     return this.http.post<{ access_token: string }>(`${this.apiUrl}/auth/web/login`, credentials)
-      .pipe(tap(res => this.setToken(res.access_token)));
+      .pipe(
+        tap(res => {
+          this.setToken(res.access_token);
+          // Solicitar permisos de notificación después del login exitoso
+          this.requestNotificationPermission();
+        })
+      );
   }
   
   registerInit(data: any) {
@@ -22,10 +32,21 @@ export class AuthService {
 
   registerComplete(email: string, code: string) {
     return this.http.post<{ access_token: string }>(`${this.apiUrl}/auth/web/register/complete`, { email, code })
-      .pipe(tap(res => this.setToken(res.access_token)));
+      .pipe(
+        tap(res => {
+          this.setToken(res.access_token);
+          // Solicitar permisos de notificación después del registro exitoso
+          this.requestNotificationPermission();
+        })
+      );
   }
 
   logout(): Observable<any> {
+    // Desregistrar notificaciones antes de cerrar sesión
+    this.webPushService.unsubscribe().catch(err => {
+      console.error('Error desregistrando notificaciones:', err);
+    });
+    
     return this.http.post(`${this.apiUrl}/auth/web/logout`, {});
   }
 
@@ -39,5 +60,25 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  /**
+   * Solicita permisos de notificación después del login
+   * Intenta tanto Web Push nativo como Firebase FCM
+   */
+  private async requestNotificationPermission(): Promise<void> {
+    try {
+      console.log('🔔 Iniciando solicitud de permisos de notificación después del login...');
+      
+      // Intentar con Web Push nativo
+      await this.webPushService.initializeAfterLogin();
+      
+      // También intentar con Firebase FCM
+      await this.fcmService.initializeAfterLogin();
+      
+      console.log('✅ Inicialización de notificaciones completada');
+    } catch (error) {
+      console.error('❌ Error solicitando permisos de notificación:', error);
+    }
   }
 }
