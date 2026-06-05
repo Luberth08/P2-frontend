@@ -1,0 +1,37 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║          COMANDOS PARA SOLUCIONAR ERROR DE VERCEL                   ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+PROBLEMA: Archivos environment.ts no se encuentran en Vercel
+
+SOLUCIÓN: Subir los archivos al repositorio (ya están descomentados en .gitignore)
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 COMANDOS (COPY-PASTE UNO POR UNO):
+
+cd "C:\Users\Luberth\Documentos\Avance Academico\7mo Semestre\Sistemas de Informacion II\PRIMER PARCIAL\SOFTWARE\FRONTEND-repo"
+
+git add src/environments/environment.ts
+
+git add src/environments/environment.prod.ts
+
+git add .gitignore
+
+git commit -m "fix: Agregar archivos de environment para Vercel"
+
+git push origin main
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ DESPUÉS DE EJECUTAR:
+
+1. Espera 2-3 minutos
+2. Vercel hará redeploy automáticamente
+3. Tu app debería funcionar correctamente
+
+═══════════════════════════════════════════════════════════════════════
+
+📖 Para más detalles, lee: SOLUCION_VERCEL.md
+
+═══════════════════════════════════════════════════════════════════════
