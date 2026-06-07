@@ -3,6 +3,17 @@ import { Observable, Subject, filter, takeUntil } from 'rxjs';
 import { WebSocketService } from './websocket.service';
 
 /**
+ * Interfaz para eventos de solicitud creada
+ */
+export interface SolicitudCreadaEvent {
+  solicitud_id: number;
+  id_taller: number;
+  id_diagnostico: number;
+  distancia_km?: number;
+  timestamp: string;
+}
+
+/**
  * Interfaz para eventos de solicitud aceptada
  */
 export interface SolicitudAceptadaEvent {
@@ -60,6 +71,7 @@ export class WebSocketEventsService implements OnDestroy {
   private destroy$ = new Subject<void>();
   
   // Subjects para eventos específicos
+  private solicitudCreadaSubject = new Subject<SolicitudCreadaEvent>();
   private solicitudAceptadaSubject = new Subject<SolicitudAceptadaEvent>();
   private solicitudRechazadaSubject = new Subject<SolicitudRechazadaEvent>();
   private servicioEstadoCambiadoSubject = new Subject<ServicioEstadoCambiadoEvent>();
@@ -67,6 +79,7 @@ export class WebSocketEventsService implements OnDestroy {
   private servicioFinalizadoSubject = new Subject<ServicioFinalizadoEvent>();
   
   // Observables públicos
+  public solicitudCreada$ = this.solicitudCreadaSubject.asObservable();
   public solicitudAceptada$ = this.solicitudAceptadaSubject.asObservable();
   public solicitudRechazada$ = this.solicitudRechazadaSubject.asObservable();
   public servicioEstadoCambiado$ = this.servicioEstadoCambiadoSubject.asObservable();
@@ -106,6 +119,10 @@ export class WebSocketEventsService implements OnDestroy {
     }
     
     switch (message.type) {
+      case 'solicitud_creada':
+        this.handleSolicitudCreada(message.data);
+        break;
+      
       case 'solicitud_aceptada':
         this.handleSolicitudAceptada(message.data);
         break;
@@ -149,6 +166,14 @@ export class WebSocketEventsService implements OnDestroy {
       default:
         console.warn('Tipo de evento WebSocket no manejado:', message.type);
     }
+  }
+  
+  /**
+   * Maneja evento de solicitud creada
+   */
+  private handleSolicitudCreada(data: any): void {
+    console.log('Solicitud creada:', data);
+    this.solicitudCreadaSubject.next(data);
   }
   
   /**

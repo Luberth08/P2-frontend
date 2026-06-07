@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -39,10 +40,8 @@ export class WebSocketService {
       return;
     }
     
-    // Construir URL de WebSocket
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    let wsUrl = `${protocol}//${host}/ws/connect`;
+    // Usar URL del environment
+    let wsUrl = environment.wsUrl;
     
     // Agregar parámetros
     const params = new URLSearchParams();

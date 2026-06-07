@@ -14,7 +14,7 @@ import {
 } from '../../../core/services/taller-servicios.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { WebSocketConnectionService } from '../../../core/services/websocket-connection.service';
-import { WebSocketEventsService, ServicioEstadoCambiadoEvent } from '../../../core/services/websocket-events.service';
+import { WebSocketEventsService, ServicioEstadoCambiadoEvent, SolicitudCreadaEvent, ServicioFinalizadoEvent } from '../../../core/services/websocket-events.service';
 import { Button } from '../../../shared/components/button/button';
 import { Modal } from '../../../shared/components/modal/modal';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -92,6 +92,11 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log('🔍 ServiciosTallerPage ngOnInit - tallerId:', this.tallerId);
+    
+    // Forzar conexión WebSocket
+    this.wsConnectionService.connect();
+    
     if (this.tallerId) {
       this.cargarSolicitudesRecientes();
       this.setupWebSocketListeners();
@@ -109,10 +114,36 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
   // ============================================================
 
   private setupWebSocketListeners(): void {
+    console.log('🔍 Configurando listeners WebSocket - tallerId:', this.tallerId);
+    console.log('🔍 WebSocket conectado:', this.wsConnectionService.isWebSocketConnected());
+
+    // Escuchar nuevas solicitudes creadas
+    this.wsEventsService.solicitudCreada$.subscribe((event: SolicitudCreadaEvent) => {
+      console.log('📨 Evento solicitud_creada recibido:', event);
+      console.log('🔍 Comparando: event.id_taller =', event.id_taller, 'vs this.tallerId =', this.tallerId);
+      
+      // Si la solicitud es para este taller, recargar la lista de solicitudes recientes
+      if (event.id_taller === this.tallerId) {
+        console.log('✅ Nueva solicitud recibida para este taller:', event);
+        this.cargarSolicitudesRecientes();
+      } else {
+        console.log('❌ Solicitud para otro taller, ignorando');
+      }
+    });
+
     // Escuchar cambios de estado de servicios
     this.wsEventsService.servicioEstadoCambiado$.subscribe((event: ServicioEstadoCambiadoEvent) => {
+      console.log('📨 Evento servicio_estado_cambiado recibido:', event);
       // Actualizar servicio en la lista si está visible
       this.actualizarServicioEnLista(event);
+    });
+
+    // Escuchar servicios finalizados
+    this.wsEventsService.servicioFinalizado$.subscribe((event: ServicioFinalizadoEvent) => {
+      console.log('📨 Evento servicio_finalizado recibido:', event);
+      // Recargar servicios en proceso e historial
+      this.cargarServiciosEnProceso();
+      this.cargarServiciosHistorico();
     });
   }
 
