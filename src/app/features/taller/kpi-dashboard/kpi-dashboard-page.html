@@ -1,0 +1,222 @@
+<div class="kpi-dashboard">
+  <div class="dashboard-header">
+    <h2>Dashboard de Inteligencia Operacional</h2>
+    <div class="export-buttons">
+      <button class="btn btn-success" (click)="exportarCSV()">Exportar CSV</button>
+      <button class="btn btn-success" (click)="exportarExcel()">Exportar Excel</button>
+      <button class="btn btn-success" (click)="exportarPDF()">Exportar PDF</button>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input 
+          type="date" 
+          id="fechaInicio" 
+          [(ngModel)]="fechaInicio" 
+          class="form-control"
+        >
+      </div>
+      <div class="filter-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input 
+          type="date" 
+          id="fechaFin" 
+          [(ngModel)]="fechaFin" 
+          class="form-control"
+        >
+      </div>
+      <button class="btn btn-primary" (click)="aplicarFiltros()">Aplicar</button>
+      <button class="btn btn-secondary" (click)="resetearFiltros()">Resetear</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && !kpis" class="no-data">
+    <p>No hay datos disponibles para el taller seleccionado en el periodo indicado.</p>
+    <p>Intenta cambiar el rango de fechas o seleccionar otro taller.</p>
+  </div>
+
+  <div *ngIf="!isLoading && kpis" class="dashboard-content">
+    <!-- KPIs de Tiempos -->
+    <div class="kpi-section">
+      <h3>Tiempos Promedio</h3>
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <div class="kpi-icon">T</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Tiempo de Asignación</div>
+            <div class="kpi-value" [style.color]="getTiempoColor(kpis.tiempo_promedio.tiempo_asignacion_minutos)">
+              {{ kpis.tiempo_promedio.tiempo_asignacion_minutos | number:'1.2' }} min
+            </div>
+            <div class="kpi-sublabel">Entre reporte y asignación</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">L</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Tiempo de Llegada</div>
+            <div class="kpi-value" [style.color]="getTiempoColor(kpis.tiempo_promedio.tiempo_llegada_minutos)">
+              {{ kpis.tiempo_promedio.tiempo_llegada_minutos | number:'1.2' }} min
+            </div>
+            <div class="kpi-sublabel">Entre asignación y llegada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incidentes por Tipo -->
+    <div class="kpi-section">
+      <h3>Incidentes por Tipo</h3>
+      <div class="chart-container">
+        <div class="incident-chart">
+          <div *ngFor="let incidente of kpis.incidentes_por_tipo" class="incident-bar">
+            <div class="incident-label">{{ incidente.tipo }}</div>
+            <div class="incident-bar-container">
+              <div 
+                class="incident-bar-fill" 
+                [style.width.%]="incidente.porcentaje"
+                [style.background-color]="getPorcentajeColor(incidente.porcentaje)"
+              ></div>
+            </div>
+            <div class="incident-value">{{ incidente.cantidad }} ({{ incidente.porcentaje | number:'1.1' }}%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Talleres más Eficientes -->
+    <div class="kpi-section">
+      <h3>Talleres más Eficientes</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Taller</th>
+              <th>Servicios</th>
+              <th>Tiempo Respuesta</th>
+              <th>Tiempo Finalización</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let taller of kpis.talleres_eficientes">
+              <td>{{ taller.nombre }}</td>
+              <td>{{ taller.total_servicios }}</td>
+              <td [style.color]="getTiempoColor(taller.tiempo_respuesta_promedio_minutos)">
+                {{ taller.tiempo_respuesta_promedio_minutos | number:'1.2' }} min
+              </td>
+              <td>{{ taller.tiempo_finalizacion_promedio_minutos | number:'1.2' }} min</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Zonas con más Incidentes -->
+    <div class="kpi-section">
+      <h3>Zonas con más Incidentes</h3>
+      <div class="zones-container">
+        <div *ngFor="let zona of kpis.zonas_incidentes" class="zone-card">
+          <div class="zone-info">
+            <div class="zone-label">Zona</div>
+            <div class="zone-value">{{ zona.zona }}</div>
+          </div>
+          <div class="zone-stats">
+            <div class="zone-stat">
+              <span class="stat-label">Incidentes:</span>
+              <span class="stat-value">{{ zona.cantidad_incidentes }}</span>
+            </div>
+            <div class="zone-stat">
+              <span class="stat-label">Lat:</span>
+              <span class="stat-value">{{ zona.latitud_promedio | number:'4' }}</span>
+            </div>
+            <div class="zone-stat">
+              <span class="stat-label">Lon:</span>
+              <span class="stat-value">{{ zona.longitud_promedio | number:'4' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Casos Cancelados -->
+    <div class="kpi-section">
+      <h3>Casos Cancelados</h3>
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <div class="kpi-icon">X</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Total Cancelados</div>
+            <div class="kpi-value">{{ kpis.casos_cancelados.total_cancelados }}</div>
+            <div class="kpi-sublabel">de {{ kpis.casos_cancelados.total_servicios }} servicios</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">%</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Porcentaje Cancelados</div>
+            <div class="kpi-value" [style.color]="getPorcentajeColor(100 - kpis.casos_cancelados.porcentaje_cancelados)">
+              {{ kpis.casos_cancelados.porcentaje_cancelados | number:'1.2' }}%
+            </div>
+            <div class="kpi-sublabel">Tasa de cancelación</div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="kpis.casos_cancelados.cancelados_por_motivo" class="motivos-container">
+        <h4>Cancelados por Motivo</h4>
+        <div class="motivos-list">
+          <div *ngFor="let motivo of kpis.casos_cancelados.cancelados_por_motivo | keyvalue" class="motivo-item">
+            <span class="motivo-key">{{ motivo.key }}:</span>
+            <span class="motivo-value">{{ motivo.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cumplimiento SLA -->
+    <div class="kpi-section">
+      <h3>Nivel de Cumplimiento SLA</h3>
+      <div class="sla-container">
+        <div class="sla-card">
+          <div class="sla-header">
+            <div class="sla-label">SLA Objetivo</div>
+            <div class="sla-target">{{ kpis.cumplimiento_sla.sla_minutos_esperado }} minutos</div>
+          </div>
+          <div class="sla-progress">
+            <div class="sla-bar">
+              <div 
+                class="sla-fill" 
+                [style.width.%]="kpis.cumplimiento_sla.porcentaje_cumplimiento"
+                [style.background-color]="getPorcentajeColor(kpis.cumplimiento_sla.porcentaje_cumplimiento)"
+              ></div>
+            </div>
+            <div class="sla-percentage">{{ kpis.cumplimiento_sla.porcentaje_cumplimiento | number:'1.2' }}%</div>
+          </div>
+          <div class="sla-stats">
+            <div class="sla-stat">
+              <span class="stat-label">Servicios dentro SLA:</span>
+              <span class="stat-value">{{ kpis.cumplimiento_sla.servicios_dentro_sla }}</span>
+            </div>
+            <div class="sla-stat">
+              <span class="stat-label">Total servicios:</span>
+              <span class="stat-value">{{ kpis.cumplimiento_sla.total_servicios }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del periodo -->
+    <div class="period-info">
+      <small>
+        Periodo: {{ kpis.periodo_inicio | date:'shortDate' }} - {{ kpis.periodo_fin | date:'shortDate' }}
+      </small>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !kpis" class="no-data">
+    <p>No hay datos disponibles para el periodo seleccionado.</p>
+  </div>
+</div>

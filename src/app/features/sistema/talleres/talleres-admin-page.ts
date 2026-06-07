@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TallerService, Taller } from '../../../core/services/taller.service';
+import { TallerService, Taller, TallerAdminDetail } from '../../../core/services/taller.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { Button } from '../../../shared/components/button/button';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +23,11 @@ export class TalleresAdminPage implements OnInit {
   limit = 10;
   loading = false;
   activeTab: 'activos' | 'suspendidos' = 'activos';
+  
+  // Detalles del taller
+  tallerDetalle: TallerAdminDetail | null = null;
+  showDetalleModal = false;
+  loadingDetalle = false;
 
   constructor(private tallerService: TallerService, private cdr: ChangeDetectorRef) {}
 
@@ -110,6 +115,40 @@ export class TalleresAdminPage implements OnInit {
         this.loadActivos();
         this.loadSuspendidos();
       }
+    });
+  }
+
+  verDetalle(taller: Taller) {
+    this.loadingDetalle = true;
+    this.showDetalleModal = true;
+    this.tallerService.getAdminDetail(taller.id).subscribe({
+      next: (detalle) => {
+        this.tallerDetalle = detalle;
+        this.loadingDetalle = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingDetalle = false;
+        this.showDetalleModal = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarDetalle() {
+    this.showDetalleModal = false;
+    this.tallerDetalle = null;
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 }

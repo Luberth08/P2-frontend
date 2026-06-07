@@ -45,6 +45,7 @@
               <app-vehiculos-taller-page *ngIf="currentView === 'taller_vehiculos'" [tallerId]="selectedTallerId"></app-vehiculos-taller-page>
               <app-tecnicos-page *ngIf="currentView === 'taller_tecnicos'" [tallerId]="selectedTallerId"></app-tecnicos-page>
               <app-empleados-page *ngIf="currentView === 'taller_empleados'" [tallerId]="selectedTallerId"></app-empleados-page>
+              <app-kpi-dashboard-page *ngIf="currentView === 'taller_kpi'" [tallerId]="selectedTallerId"></app-kpi-dashboard-page>
             </div>
           </div>
         </ng-container>
@@ -58,6 +59,7 @@
           <app-talleres-admin-page *ngIf="currentView === 'sistema_talleres'"></app-talleres-admin-page>
           <app-solicitudes-pendientes-page *ngIf="currentView === 'sistema_solicitudes-pendientes'"></app-solicitudes-pendientes-page>
           <app-configuracion-page *ngIf="currentView === 'sistema_configuracion'"></app-configuracion-page>
+          <app-kpi-general-page *ngIf="currentView === 'sistema_kpi-general'"></app-kpi-general-page>
         </ng-container>
       </div>
     </main>

@@ -1,0 +1,162 @@
+<div class="kpi-general-dashboard">
+  <div class="dashboard-header">
+    <h2>Dashboard General de Inteligencia Operacional</h2>
+    <div class="export-buttons">
+      <button class="btn btn-success" (click)="exportarCSV()">Exportar CSV</button>
+      <button class="btn btn-success" (click)="exportarExcel()">Exportar Excel</button>
+      <button class="btn btn-success" (click)="exportarPDF()">Exportar PDF</button>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input 
+          type="date" 
+          id="fechaInicio" 
+          [(ngModel)]="fechaInicio" 
+          class="form-control"
+        >
+      </div>
+      <div class="filter-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input 
+          type="date" 
+          id="fechaFin" 
+          [(ngModel)]="fechaFin" 
+          class="form-control"
+        >
+      </div>
+      <button class="btn btn-primary" (click)="aplicarFiltros()">Aplicar</button>
+      <button class="btn btn-secondary" (click)="resetearFiltros()">Resetear</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && kpisList.length === 0" class="no-data">
+    <p>No hay datos disponibles para el periodo seleccionado.</p>
+  </div>
+
+  <div *ngIf="!isLoading && kpisList.length > 0" class="dashboard-content">
+    <!-- KPIs Globales Agregados -->
+    <div class="kpi-section">
+      <h3>KPIs Globales (Promedio de Todos los Talleres)</h3>
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <div class="kpi-icon">T</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Tiempo de Asignación Promedio</div>
+            <div class="kpi-value" [style.color]="getTiempoColor(getPromedioTiempoAsignacion())">
+              {{ getPromedioTiempoAsignacion() | number:'1.2' }} min
+            </div>
+            <div class="kpi-sublabel">Promedio entre reporte y asignación</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">L</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Tiempo de Llegada Promedio</div>
+            <div class="kpi-value" [style.color]="getTiempoColor(getPromedioTiempoLlegada())">
+              {{ getPromedioTiempoLlegada() | number:'1.2' }} min
+            </div>
+            <div class="kpi-sublabel">Promedio entre asignación y llegada</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">X</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Total Cancelados</div>
+            <div class="kpi-value">{{ getTotalCancelados() }}</div>
+            <div class="kpi-sublabel">de {{ getTotalServicios() }} servicios</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">%</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Porcentaje Cancelados</div>
+            <div class="kpi-value" [style.color]="getPorcentajeColor(100 - getPorcentajeCanceladosGlobal())">
+              {{ getPorcentajeCanceladosGlobal() | number:'1.2' }}%
+            </div>
+            <div class="kpi-sublabel">Tasa de cancelación global</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">SLA</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Cumplimiento SLA Promedio</div>
+            <div class="kpi-value" [style.color]="getPorcentajeColor(getPromedioCumplimientoSLA())">
+              {{ getPromedioCumplimientoSLA() | number:'1.2' }}%
+            </div>
+            <div class="kpi-sublabel">Promedio de cumplimiento</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incidentes por Tipo Agregados -->
+    <div class="kpi-section">
+      <h3>Incidentes por Tipo (Agregado)</h3>
+      <div class="chart-container">
+        <div class="incident-chart">
+          <div *ngFor="let incidente of getIncidentesAgregados()" class="incident-bar">
+            <div class="incident-label">{{ incidente.tipo }}</div>
+            <div class="incident-bar-container">
+              <div 
+                class="incident-bar-fill" 
+                [style.width.%]="incidente.porcentaje"
+                [style.background-color]="getPorcentajeColor(incidente.porcentaje)"
+              ></div>
+            </div>
+            <div class="incident-value">{{ incidente.cantidad }} ({{ incidente.porcentaje | number:'1.1' }}%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs por Taller -->
+    <div class="kpi-section">
+      <h3>KPIs por Taller</h3>
+      <div class="talleres-grid">
+        <div *ngFor="let kpi of kpisList" class="taller-card">
+          <h4>{{ kpi.nombre }}</h4>
+          <div class="taller-kpis">
+            <div class="mini-kpi">
+              <span class="mini-label">Tiempo Asignación:</span>
+              <span class="mini-value" [style.color]="getTiempoColor(kpi.tiempo_promedio.tiempo_asignacion_minutos)">
+                {{ kpi.tiempo_promedio.tiempo_asignacion_minutos | number:'1.2' }} min
+              </span>
+            </div>
+            <div class="mini-kpi">
+              <span class="mini-label">Tiempo Llegada:</span>
+              <span class="mini-value" [style.color]="getTiempoColor(kpi.tiempo_promedio.tiempo_llegada_minutos)">
+                {{ kpi.tiempo_promedio.tiempo_llegada_minutos | number:'1.2' }} min
+              </span>
+            </div>
+            <div class="mini-kpi">
+              <span class="mini-label">Cancelados:</span>
+              <span class="mini-value">{{ kpi.casos_cancelados.total_cancelados }}/{{ kpi.casos_cancelados.total_servicios }}</span>
+            </div>
+            <div class="mini-kpi">
+              <span class="mini-label">SLA:</span>
+              <span class="mini-value" [style.color]="getPorcentajeColor(kpi.cumplimiento_sla.porcentaje_cumplimiento)">
+                {{ kpi.cumplimiento_sla.porcentaje_cumplimiento | number:'1.2' }}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del periodo -->
+    <div class="period-info">
+      <small>
+        Mostrando {{ kpisList.length }} talleres
+      </small>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && kpisList.length === 0" class="no-data">
+    <p>No hay datos disponibles para el periodo seleccionado.</p>
+  </div>
+</div>

@@ -18,6 +18,7 @@
             <p>{{ t.email }} · {{ t.telefono }}</p>
           </div>
           <div class="actions">
+            <app-button variant="secondary" (click)="verDetalle(t)">Ver Detalle</app-button>
             <app-button variant="secondary" (click)="suspender(t)">Suspender</app-button>
           </div>
         </div>
@@ -37,6 +38,7 @@
             <p>{{ t.email }} · {{ t.telefono }}</p>
           </div>
           <div class="actions">
+            <app-button variant="secondary" (click)="verDetalle(t)">Ver Detalle</app-button>
             <app-button (click)="activar(t)">Activar</app-button>
           </div>
         </div>
@@ -45,6 +47,117 @@
         <app-button variant="secondary" (click)="prevPageSuspendidos()" [disabled]="skipSuspendidos===0">Anterior</app-button>
         <span>{{ skipSuspendidos + 1 }} - {{ Math.min(skipSuspendidos + limit, totalSuspendidos) }} de {{ totalSuspendidos }}</span>
         <app-button variant="secondary" (click)="nextPageSuspendidos()" [disabled]="skipSuspendidos + limit >= totalSuspendidos">Siguiente</app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalles del Taller -->
+  <div class="modal-overlay" *ngIf="showDetalleModal" (click)="cerrarDetalle()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Detalles del Taller</h3>
+        <button class="close-button" (click)="cerrarDetalle()">×</button>
+      </div>
+      
+      <div *ngIf="loadingDetalle" class="modal-loading">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+      
+      <div *ngIf="!loadingDetalle && tallerDetalle" class="modal-body">
+        <!-- Información básica -->
+        <div class="detail-section">
+          <h4>Información del Taller</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">ID:</span>
+              <span class="value">{{ tallerDetalle.id }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Nombre:</span>
+              <span class="value">{{ tallerDetalle.nombre }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ tallerDetalle.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ tallerDetalle.telefono }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Estado:</span>
+              <span class="value">{{ tallerDetalle.estado }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Puntos:</span>
+              <span class="value">{{ tallerDetalle.puntos }}</span>
+            </div>
+            <div class="detail-item" *ngIf="tallerDetalle.ubicacion">
+              <span class="label">Ubicación:</span>
+              <span class="value">{{ tallerDetalle.ubicacion }}</span>
+            </div>
+            <div class="detail-item" *ngIf="tallerDetalle.hora_inicio">
+              <span class="label">Hora Inicio:</span>
+              <span class="value">{{ tallerDetalle.hora_inicio }}</span>
+            </div>
+            <div class="detail-item" *ngIf="tallerDetalle.hora_fin">
+              <span class="label">Hora Fin:</span>
+              <span class="value">{{ tallerDetalle.hora_fin }}</span>
+            </div>
+            <div class="detail-item" *ngIf="tallerDetalle.url_web">
+              <span class="label">Sitio Web:</span>
+              <span class="value"><a [href]="tallerDetalle.url_web" target="_blank">{{ tallerDetalle.url_web }}</a></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="detail-section">
+          <h4>Estadísticas</h4>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-value">{{ tallerDetalle.total_servicios }}</span>
+              <span class="stat-label">Total Servicios</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ tallerDetalle.servicios_activos }}</span>
+              <span class="stat-label">Servicios Activos</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ tallerDetalle.total_empleados }}</span>
+              <span class="stat-label">Total Empleados</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">{{ tallerDetalle.empleados_activos }}</span>
+              <span class="stat-label">Empleados Activos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Servicios Recientes -->
+        <div class="detail-section" *ngIf="tallerDetalle.servicios_recientes && tallerDetalle.servicios_recientes.length > 0">
+          <h4>Servicios Recientes ({{ tallerDetalle.servicios_recientes.length }})</h4>
+          <div class="list-small">
+            <div class="item-small" *ngFor="let s of tallerDetalle.servicios_recientes">
+              <span class="item-id">#{{ s.id }}</span>
+              <span class="item-estado">{{ s.estado }}</span>
+              <span class="item-fecha">{{ formatDate(s.fecha) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empleados Recientes -->
+        <div class="detail-section" *ngIf="tallerDetalle.empleados_recientes && tallerDetalle.empleados_recientes.length > 0">
+          <h4>Empleados Recientes ({{ tallerDetalle.empleados_recientes.length }})</h4>
+          <div class="list-small">
+            <div class="item-small" *ngFor="let e of tallerDetalle.empleados_recientes">
+              <span class="item-id">#{{ e.id }}</span>
+              <span class="item-nombre">{{ e.nombre }}</span>
+              <span class="item-estado">{{ e.estado }}</span>
+              <span class="item-fecha">{{ formatDate(e.fecha_ingreso) }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

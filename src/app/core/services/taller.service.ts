@@ -42,6 +42,38 @@ export interface TalleresResponse {
   limit: number;
 }
 
+export interface ServicioBasico {
+  id: number;
+  fecha: string;
+  estado: string;
+}
+
+export interface EmpleadoBasico {
+  id: number;
+  nombre: string;
+  estado: string;
+  fecha_ingreso: string;
+}
+
+export interface TallerAdminDetail {
+  id: number;
+  nombre: string;
+  telefono: string;
+  email: string;
+  ubicacion?: string;
+  hora_inicio?: string;
+  hora_fin?: string;
+  url_web?: string;
+  puntos: number;
+  estado: string;
+  total_servicios: number;
+  servicios_activos: number;
+  total_empleados: number;
+  empleados_activos: number;
+  servicios_recientes: ServicioBasico[];
+  empleados_recientes: EmpleadoBasico[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class TallerService {
   private apiUrl = environment.apiUrl;
@@ -75,5 +107,10 @@ export class TallerService {
 
   activar(tallerId: number) {
     return this.http.put<Taller>(`${this.apiUrl}/talleres/${tallerId}/activar`, {});
+  }
+
+  // Admin: obtener detalles completos del taller
+  getAdminDetail(tallerId: number): Observable<TallerAdminDetail> {
+    return this.http.get<TallerAdminDetail>(`${this.apiUrl}/talleres/${tallerId}/admin-detail`);
   }
 }

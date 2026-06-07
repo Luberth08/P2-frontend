@@ -1,6 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
+import { environment } from './environments/environment';
 
 // Esperar a que la app esté lista antes de registrar el Service Worker
 bootstrapApplication(App, appConfig)
@@ -20,16 +21,20 @@ bootstrapApplication(App, appConfig)
             console.error('❌ Error registrando Firebase Service Worker:', error);
           });
 
-        // Registrar Service Worker de Angular PWA para offline
-        navigator.serviceWorker
-          .register('/ngsw-worker.js', { scope: '/' })
-          .then((registration) => {
-            console.log('✅ Angular PWA Service Worker registrado exitosamente:', registration);
-            console.log('   Scope:', registration.scope);
-          })
-          .catch((error) => {
-            console.error('❌ Error registrando Angular PWA Service Worker:', error);
-          });
+        // Registrar Service Worker de Angular PWA para offline (solo en producción)
+        if (environment.production) {
+          navigator.serviceWorker
+            .register('/ngsw-worker.js', { scope: '/' })
+            .then((registration) => {
+              console.log('✅ Angular PWA Service Worker registrado exitosamente:', registration);
+              console.log('   Scope:', registration.scope);
+            })
+            .catch((error) => {
+              console.error('❌ Error registrando Angular PWA Service Worker:', error);
+            });
+        } else {
+          console.log('⏭️ Angular PWA Service Worker deshabilitado en modo desarrollo');
+        }
       }, 1000);
     }
   })

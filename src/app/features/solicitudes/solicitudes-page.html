@@ -49,7 +49,7 @@
     ></app-input-field>
     <div class="form-group">
       <label>Ubicación (selecciona en el mapa)</label>
-      <app-map *ngIf="showModal" (locationSelected)="onLocationSelected($event)"></app-map>
+      <app-map *ngIf="showModal" mapId="solicitud-map" (locationSelected)="onLocationSelected($event)"></app-map>
       <small *ngIf="selectedLocation">Coordenadas seleccionadas: {{ selectedLocation.lat }}, {{ selectedLocation.lng }}</small>
     </div>
     <app-input-field

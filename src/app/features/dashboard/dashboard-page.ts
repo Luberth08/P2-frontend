@@ -26,12 +26,14 @@ import { ConfiguracionPage } from '../sistema/configuracion/configuracion-page';
 import { PerfilTallerPage } from '../taller/perfil-taller/perfil-taller-page';
 import { ServiciosTallerPage } from '../taller/servicios/servicios-page';
 import { CotizacionesPageComponent } from '../taller/cotizaciones/cotizaciones-page';
+import { KPIDashboardPage } from '../taller/kpi-dashboard/kpi-dashboard-page';
+import { KPIGeneralPage } from '../sistema/kpi-general/kpi-general-page';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage, CotizacionesPageComponent],
+  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage, CotizacionesPageComponent, KPIDashboardPage, KPIGeneralPage],
   templateUrl: './dashboard-page.html',
   styleUrls: ['./dashboard-page.scss']
 })
@@ -52,8 +54,15 @@ export class DashboardPage implements OnInit {
   // Mapeo de vistas según (tab, opción)
   viewMap: { [key: string]: string } = {
     'normal_inicio': 'normal',
-    'taller_gestion': 'taller',
-    'sistema_usuarios': 'sistema'
+    'taller_perfil': 'taller-perfil',
+    'taller_cotizaciones': 'taller-cotizaciones',
+    'taller_servicios': 'taller-servicios',
+    'taller_vehiculos': 'taller-vehiculos',
+    'taller_tecnicos': 'taller-tecnicos',
+    'taller_empleados': 'taller-empleados',
+    'taller_kpi': 'taller-kpi',
+    'sistema_usuarios': 'sistema',
+    'sistema_kpi-general': 'sistema-kpi-general'
   };
 
   constructor(
@@ -157,7 +166,8 @@ export class DashboardPage implements OnInit {
         { id: 'servicios', label: 'Gestión de Servicios', icon: 'fa-tools', visible: true },
         { id: 'vehiculos', label: 'Vehículos', icon: 'fa-car', visible: true },
         { id: 'tecnicos', label: 'Técnicos', icon: 'fa-users', visible: true },
-        { id: 'empleados', label: 'Empleados', icon: 'fa-users', visible: true }
+        { id: 'empleados', label: 'Empleados', icon: 'fa-users', visible: true },
+        { id: 'kpi', label: 'Dashboard KPIs', icon: 'fa-chart-line', visible: true }
       ];
     } else if (tabId === 'sistema') {
       this.sidebarItems = [
@@ -167,7 +177,8 @@ export class DashboardPage implements OnInit {
         { id: 'incidentes', label: 'Tipos de Incidentes', icon: 'fa-triangle-exclamation', visible: true },
         { id: 'solicitudes-pendientes', label: 'Solicitudes de afiliación', icon: 'fa-clipboard-list', visible: true },
         { id: 'talleres', label: 'Talleres', icon: 'fa-building', visible: true },
-        { id: 'configuracion', label: 'Configurar Criterios', icon: 'fa-cog', visible: true }
+        { id: 'configuracion', label: 'Configurar Criterios', icon: 'fa-cog', visible: true },
+        { id: 'kpi-general', label: 'Dashboard General KPIs', icon: 'fa-chart-line', visible: true }
       ];
     }
   }
