@@ -1,9 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileService, UserProfile } from '../../core/services/profile.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { WebSocketConnectionService } from '../../core/services/websocket-connection.service';
+import { WebSocketEventsService, ServicioEstadoCambiadoEvent, ServicioFinalizadoEvent } from '../../core/services/websocket-events.service';
 import { Logo } from '../../shared/components/logo/logo';
 import { UserAvatar } from '../../shared/components/user-avatar/user-avatar';
 import { Tabs, TabItem } from '../../shared/components/tabs/tabs';
@@ -37,7 +39,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './dashboard-page.html',
   styleUrls: ['./dashboard-page.scss']
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements OnInit, OnDestroy {
   user: UserProfile | null = null;
   roles: string[] = [];
   tabs: TabItem[] = [];
@@ -71,7 +73,9 @@ export class DashboardPage implements OnInit {
     private notificationService: NotificationService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private tallerService: TallerService
+    private tallerService: TallerService,
+    private wsConnectionService: WebSocketConnectionService,
+    private wsEventsService: WebSocketEventsService
   ) {}
 
   async ngOnInit() {
@@ -98,6 +102,8 @@ export class DashboardPage implements OnInit {
         if (this.roles.includes('admin_taller') || this.roles.includes('super_admin_taller')) {
           this.cargarTalleres();
         }
+        // Conectar WebSocket cuando el usuario está autenticado
+        this.wsConnectionService.connect(token || undefined);
         this.cdr.detectChanges();
       },
       error: (err) => console.error(err)
@@ -205,12 +211,18 @@ export class DashboardPage implements OnInit {
       next: () => {
         localStorage.removeItem('token');
         this.notificationService.showSuccess('Sesión cerrada correctamente');
+        this.wsConnectionService.disconnect();
         this.router.navigate(['/login']);
       },
       error: () => {
         localStorage.removeItem('token');
+        this.wsConnectionService.disconnect();
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.wsConnectionService.disconnect();
   }
 }

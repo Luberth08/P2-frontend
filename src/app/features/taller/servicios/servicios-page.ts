@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,6 +13,8 @@ import {
   Valoracion
 } from '../../../core/services/taller-servicios.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { WebSocketConnectionService } from '../../../core/services/websocket-connection.service';
+import { WebSocketEventsService, ServicioEstadoCambiadoEvent } from '../../../core/services/websocket-events.service';
 import { Button } from '../../../shared/components/button/button';
 import { Modal } from '../../../shared/components/modal/modal';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -25,7 +27,7 @@ import { Map } from '../../../shared/components/map/map';
   templateUrl: './servicios-page.html',
   styleUrls: ['./servicios-page.scss']
 })
-export class ServiciosTallerPage implements OnInit {
+export class ServiciosTallerPage implements OnInit, OnDestroy {
   @Input() tallerId: number = 0;
 
   isLoading = false;
@@ -84,12 +86,15 @@ export class ServiciosTallerPage implements OnInit {
   constructor(
     private serviciosService: TallerServiciosService,
     private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private wsConnectionService: WebSocketConnectionService,
+    private wsEventsService: WebSocketEventsService
   ) {}
 
   ngOnInit(): void {
     if (this.tallerId) {
       this.cargarSolicitudesRecientes();
+      this.setupWebSocketListeners();
     }
   }
 
@@ -97,6 +102,38 @@ export class ServiciosTallerPage implements OnInit {
     if (this.tallerId) {
       this.cargarDatosSegunTab();
     }
+  }
+
+  // ============================================================
+  // WEBSOCKET
+  // ============================================================
+
+  private setupWebSocketListeners(): void {
+    // Escuchar cambios de estado de servicios
+    this.wsEventsService.servicioEstadoCambiado$.subscribe((event: ServicioEstadoCambiadoEvent) => {
+      // Actualizar servicio en la lista si está visible
+      this.actualizarServicioEnLista(event);
+    });
+  }
+
+  private actualizarServicioEnLista(event: ServicioEstadoCambiadoEvent): void {
+    // Buscar el servicio en la lista de servicios en proceso
+    const servicioIndex = this.serviciosEnProceso.findIndex(s => s.id === event.servicio_id);
+    if (servicioIndex !== -1) {
+      this.serviciosEnProceso[servicioIndex].estado = event.estado_nuevo;
+      this.cdr.detectChanges();
+    }
+
+    // Buscar el servicio en el historial
+    const historicoIndex = this.serviciosHistorico.findIndex(s => s.id === event.servicio_id);
+    if (historicoIndex !== -1) {
+      this.serviciosHistorico[historicoIndex].estado = event.estado_nuevo;
+      this.cdr.detectChanges();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar listeners si es necesario
   }
 
   // ============================================================
