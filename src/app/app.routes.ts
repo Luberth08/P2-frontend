@@ -7,6 +7,7 @@ import { DashboardPage } from './features/dashboard/dashboard-page';
 import { authGuard } from './core/guards/auth.guard';
 import { PerfilPage } from './features/perfil/perfil-page';
 import { VehiculosPage } from './features/vehiculos/vehiculos-page';
+import { CotizacionesPageComponent } from './features/taller/cotizaciones/cotizaciones-page';
 
 export const routes: Routes = [
   {
@@ -22,5 +23,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginPage },
   { path: 'perfil', component: PerfilPage, canActivate: [authGuard] },
   { path: 'vehiculos', component: VehiculosPage, canActivate: [authGuard] },
+  { path: 'cotizaciones', component: CotizacionesPageComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

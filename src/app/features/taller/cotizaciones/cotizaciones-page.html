@@ -1,0 +1,78 @@
+<div class="cotizaciones-container">
+  <div class="header">
+    <h1>Cotizaciones Pendientes</h1>
+    <button (click)="loadSolicitudes()" class="refresh-btn">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Cargando solicitudes...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error }}</p>
+    <button (click)="loadSolicitudes()" class="retry-btn">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="content">
+    <div *ngIf="solicitudes.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">receipt_long</mat-icon>
+      <h2>No hay solicitudes de cotización pendientes</h2>
+      <p>Las solicitudes de los clientes aparecerán aquí.</p>
+    </div>
+
+    <div *ngIf="solicitudes.length > 0" class="solicitudes-list">
+      <div *ngFor="let solicitud of solicitudes" class="solicitud-card" 
+           [class.responded]="solicitud.ya_respondio">
+        <div class="card-header">
+          <div class="status-badge" [style.background-color]="getEstadoColor(solicitud.estado)">
+            {{ getEstadoTexto(solicitud.estado) }}
+          </div>
+          <div class="fecha">{{ formatFecha(solicitud.fecha_creacion) }}</div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Servicio:</span>
+            <span class="value">{{ solicitud.servicio?.nombre || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Vehículo:</span>
+            <span class="value">
+              {{ solicitud.vehiculo?.marca }} {{ solicitud.vehiculo?.modelo }} - {{ solicitud.vehiculo?.placa }}
+            </span>
+          </div>
+          <div class="info-row" *ngIf="solicitud.cliente_nombre">
+            <span class="label">Cliente:</span>
+            <span class="value">{{ solicitud.cliente_nombre }}</span>
+          </div>
+          <div class="info-row" *ngIf="solicitud.comentario">
+            <span class="label">Comentario:</span>
+            <span class="value">{{ solicitud.comentario }}</span>
+          </div>
+          <div class="info-row" *ngIf="solicitud.fecha_expiracion">
+            <span class="label">Expira:</span>
+            <span class="value">{{ formatFecha(solicitud.fecha_expiracion) }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div *ngIf="solicitud.ya_respondio" class="responded-badge">
+            <mat-icon>check_circle</mat-icon>
+            Ya respondido
+          </div>
+          <button (click)="verDetalle(solicitud)" 
+                  class="action-btn"
+                  [disabled]="solicitud.ya_respondio"
+                  [title]="solicitud.ya_respondio ? 'Ver respuesta' : 'Responder'">
+            <mat-icon>{{ solicitud.ya_respondio ? 'visibility' : 'reply' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

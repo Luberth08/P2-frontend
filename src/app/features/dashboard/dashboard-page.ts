@@ -25,12 +25,13 @@ import { IncidentesPage } from '../sistema/incidentes/incidentes-page';
 import { ConfiguracionPage } from '../sistema/configuracion/configuracion-page';
 import { PerfilTallerPage } from '../taller/perfil-taller/perfil-taller-page';
 import { ServiciosTallerPage } from '../taller/servicios/servicios-page';
+import { CotizacionesPageComponent } from '../taller/cotizaciones/cotizaciones-page';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage],
+  imports: [CommonModule, FormsModule, Logo, UserAvatar, Tabs, Sidebar, LoadingSpinner, NormalView, SistemaView, VehiculosPage, SolicitudesPage, SolicitudesPendientesPage, EmpleadosPage, TecnicosPage, VehiculosTallerPage, EspecialidadesPage, TalleresAdminPage, CategoriasIncidentesPage, IncidentesPage, ConfiguracionPage, PerfilTallerPage, ServiciosTallerPage, CotizacionesPageComponent],
   templateUrl: './dashboard-page.html',
   styleUrls: ['./dashboard-page.scss']
 })
@@ -152,6 +153,7 @@ export class DashboardPage implements OnInit {
     } else if (tabId === 'taller') {
       this.sidebarItems = [
         { id: 'perfil', label: 'Perfil del Taller', icon: 'fa-building', visible: true },
+        { id: 'cotizaciones', label: 'Cotizaciones', icon: 'fa-receipt', visible: true },
         { id: 'servicios', label: 'Gestión de Servicios', icon: 'fa-tools', visible: true },
         { id: 'vehiculos', label: 'Vehículos', icon: 'fa-car', visible: true },
         { id: 'tecnicos', label: 'Técnicos', icon: 'fa-users', visible: true },
