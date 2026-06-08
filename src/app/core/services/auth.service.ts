@@ -64,19 +64,25 @@ export class AuthService {
 
   /**
    * Solicita permisos de notificación después del login
-   * Intenta tanto Web Push nativo como Firebase FCM
+   * Intenta Web Push nativo primero, si falla intenta Firebase FCM
    */
   private async requestNotificationPermission(): Promise<void> {
     try {
       console.log('🔔 Iniciando solicitud de permisos de notificación después del login...');
       
-      // Intentar con Web Push nativo
-      await this.webPushService.initializeAfterLogin();
+      // Intentar con Web Push nativo primero
+      const webPushSuccess = await this.webPushService.initializeAfterLogin();
       
-      // También intentar con Firebase FCM
+      if (webPushSuccess) {
+        console.log('✅ Inicialización de notificaciones completada con Web Push nativo');
+        return; // Salir si Web Push funcionó
+      }
+      
+      // Solo intentar con Firebase FCM si Web Push falló
+      console.log('⚠️ Web Push nativo falló, intentando con Firebase FCM...');
       await this.fcmService.initializeAfterLogin();
       
-      console.log('✅ Inicialización de notificaciones completada');
+      console.log('✅ Inicialización de notificaciones completada con Firebase FCM');
     } catch (error) {
       console.error('❌ Error solicitando permisos de notificación:', error);
     }

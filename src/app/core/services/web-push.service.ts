@@ -177,13 +177,14 @@ export class WebPushService {
 
   /**
    * Inicializa las notificaciones después del login
+   * @returns true si la inicialización fue exitosa, false si falló
    */
-  async initializeAfterLogin(): Promise<void> {
+  async initializeAfterLogin(): Promise<boolean> {
     console.log('🚀 Inicializando notificaciones Web Push después del login...');
 
     if (!this.isSupported()) {
       console.warn('⚠️ Web Push no está soportado en este navegador');
-      return;
+      return false;
     }
 
     const permissionStatus = this.getPermissionStatus();
@@ -191,12 +192,13 @@ export class WebPushService {
 
     if (permissionStatus === 'granted') {
       console.log('✅ Permisos ya concedidos, suscribiendo...');
-      await this.requestPermissionAndSubscribe();
+      return await this.requestPermissionAndSubscribe();
     } else if (permissionStatus === 'default') {
       console.log('❓ Permisos no solicitados, solicitando ahora...');
-      await this.requestPermissionAndSubscribe();
+      return await this.requestPermissionAndSubscribe();
     } else {
       console.warn('❌ Permisos denegados. El usuario debe habilitarlos manualmente.');
+      return false;
     }
   }
 
