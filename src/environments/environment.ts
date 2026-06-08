@@ -1,8 +1,8 @@
 //ng serve
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000/api/v1',
-  wsUrl: 'ws://localhost:8000/ws/connect',
+  apiUrl: 'https://p2-backend-617x.onrender.com/api/v1',
+  wsUrl: 'wss://p2-backend-617x.onrender.com/ws/connect',
   firebase: {
     apiKey: "AIzaSyAvdpjx1YccTHqji2XpwZJX2THnoaXmcOg",
     authDomain: "asistencia-vehicular-890e2.firebaseapp.com",
