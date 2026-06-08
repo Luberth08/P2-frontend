@@ -10,6 +10,7 @@ export const environment = {
     storageBucket: "asistencia-vehicular-890e2.firebasestorage.app",
     messagingSenderId: "770812655534",
     appId: "1:770812655534:web:66a5392e14282547623a3f",
-    vapidKey: 'BOO39zp0Vpsd10Muf2nntKKpdmegxhs13PuZAMVAgJfrGXDnZdgecRIL2SnqpzAcolXGCWzO9J8xHOafTJwPPmY'
+    // VAPID key must match backend .env FCM_VAPID_KEY
+    vapidKey: 'BAjYPjtTkxxRm-2Pke3A_qNsIR10mRr9DF-bRZS3fWjr78gpYWLEhne08Yf41J4h96Zu2PgA-ic_uWQJXtfnX3o'
   }
 };

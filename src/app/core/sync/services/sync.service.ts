@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, firstValueFrom } from 'rxjs';
+import { Observable, from, firstValueFrom, Subject } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { SyncRequest, SyncItem } from '../models/sync-item.model';
 import { SyncResponse, SyncStatus } from '../models/sync-response.model';
 import { IndexedDbService } from './indexed-db.service';
 import { OfflineDetectionService } from './offline-detection.service';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SyncService {
-  private readonly API_URL = '/api/v1/sync';
+  private readonly API_URL = `${environment.apiUrl}/sync`;
   private syncInProgress = false;
+  
+  // Observable para notificar cuando se complete la sincronización
+  private syncCompletedSubject = new Subject<void>();
+  public syncCompleted$ = this.syncCompletedSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -60,6 +65,7 @@ export class SyncService {
     }
 
     console.log(`Sincronizando ${pendingItems.length} items pendientes`);
+    console.log('📋 Items a sincronizar:', JSON.stringify(pendingItems, null, 2));
     this.syncInProgress = true;
 
     try {
@@ -74,14 +80,30 @@ export class SyncService {
       for (const result of response.results) {
         if (result.status === 'success') {
           await this.indexedDb.deleteSyncItem(result.client_sync_id);
-          console.log(`Item sincronizado exitosamente: ${result.client_sync_id}`);
+          console.log(`✅ Item sincronizado exitosamente: ${result.client_sync_id}`);
+          if (result.error_message && result.error_message.includes('duplicado')) {
+            console.log(`   ℹ️ ${result.error_message}`);
+          }
+        } else if (result.status === 'conflict') {
+          console.warn(`⚠️ Conflicto en item ${result.client_sync_id}:`, result.error_message);
+          await this.indexedDb.updateSyncItemStatus(result.client_sync_id, 'conflict');
         } else {
-          console.error(`Error sincronizando item ${result.client_sync_id}:`, result.error_message);
+          console.error(`❌ Error sincronizando item ${result.client_sync_id}:`, result.error_message);
+          // NO borrar items fallidos, marcarlos como failed para poder revisarlos
           await this.indexedDb.updateSyncItemStatus(result.client_sync_id, 'failed');
         }
       }
 
-      console.log(`Sincronización completada: ${response.successful_items} exitosos, ${response.failed_items} fallidos`);
+      console.log(`🎯 Sincronización completada: ${response.successful_items} exitosos, ${response.failed_items} fallidos, ${response.conflicted_items} conflictos`);
+      
+      if (response.failed_items > 0 || response.conflicted_items > 0) {
+        console.warn('⚠️ Algunos items no se sincronizaron. Revisa los errores arriba.');
+      }
+      
+      // Emitir evento de sincronización completada para que los componentes recarguen datos
+      if (response.successful_items > 0) {
+        this.syncCompletedSubject.next();
+      }
     } catch (error) {
       console.error('Error durante sincronización:', error);
     } finally {

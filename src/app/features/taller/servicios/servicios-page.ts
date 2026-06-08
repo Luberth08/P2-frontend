@@ -15,10 +15,13 @@ import {
 import { NotificationService } from '../../../core/services/notification.service';
 import { WebSocketConnectionService } from '../../../core/services/websocket-connection.service';
 import { WebSocketEventsService, ServicioEstadoCambiadoEvent, SolicitudCreadaEvent, ServicioFinalizadoEvent } from '../../../core/services/websocket-events.service';
+import { SyncService } from '../../../core/sync/services/sync.service';
+import { formatBoliviaDateShort, formatDateShort } from '../../../core/utils/timezone.util';
 import { Button } from '../../../shared/components/button/button';
 import { Modal } from '../../../shared/components/modal/modal';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { Map } from '../../../shared/components/map/map';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-servicios-taller-page',
@@ -82,13 +85,17 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
 
   // Valoraciones por servicio (cache)
   valoracionesCache: { [key: number]: Valoracion | null | undefined } = {};
+  
+  // Subscripciones
+  private syncSubscription?: Subscription;
 
   constructor(
     private serviciosService: TallerServiciosService,
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef,
     private wsConnectionService: WebSocketConnectionService,
-    private wsEventsService: WebSocketEventsService
+    private wsEventsService: WebSocketEventsService,
+    private syncService: SyncService
   ) {}
 
   ngOnInit(): void {
@@ -101,6 +108,12 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
       this.cargarSolicitudesRecientes();
       this.setupWebSocketListeners();
     }
+    
+    // Escuchar eventos de sincronización completada
+    this.syncSubscription = this.syncService.syncCompleted$.subscribe(() => {
+      console.log('🔄 Sincronización completada, recargando datos...');
+      this.cargarDatosSegunTab();
+    });
   }
 
   ngOnChanges(): void {
@@ -128,6 +141,17 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
         this.cargarSolicitudesRecientes();
       } else {
         console.log('❌ Solicitud para otro taller, ignorando');
+      }
+    });
+
+    // Escuchar solicitudes aceptadas
+    this.wsEventsService.solicitudAceptada$.subscribe((event) => {
+      console.log('📨 Evento solicitud_aceptada recibido:', event);
+      // Recargar solicitudes para actualizar la lista (la aceptada ya no estará en pendientes)
+      if (event.id_taller === this.tallerId) {
+        console.log('✅ Solicitud aceptada en este taller, recargando listas');
+        this.cargarSolicitudesRecientes();
+        this.cargarServiciosEnProceso();
       }
     });
 
@@ -164,7 +188,10 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Limpiar listeners si es necesario
+    // Limpiar suscripciones
+    if (this.syncSubscription) {
+      this.syncSubscription.unsubscribe();
+    }
   }
 
   // ============================================================
@@ -525,7 +552,11 @@ export class ServiciosTallerPage implements OnInit, OnDestroy {
   // ============================================================
 
   formatFecha(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-ES');
+    return formatBoliviaDateShort(fecha);
+  }
+
+  formatFechaServicio(fecha: string): string {
+    return formatDateShort(fecha);
   }
 
   onImageError(event: any, evidencia: any): void {

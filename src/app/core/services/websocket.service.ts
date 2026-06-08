@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -22,7 +22,7 @@ export class WebSocketService {
   public messages$ = this.messageSubject.asObservable();
   public errors$ = this.errorSubject.asObservable();
   
-  constructor() {
+  constructor(private ngZone: NgZone) {
     // Intentar reconectar cuando el navegador recupere conexión
     window.addEventListener('online', () => {
       if (!this.connectedSubject.value) {
@@ -62,35 +62,43 @@ export class WebSocketService {
       this.ws = new WebSocket(wsUrl);
       
       this.ws.onopen = () => {
-        console.log('WebSocket conectado exitosamente');
-        this.connectedSubject.next(true);
-        this.reconnectAttempts = 0;
+        this.ngZone.run(() => {
+          console.log('WebSocket conectado exitosamente');
+          this.connectedSubject.next(true);
+          this.reconnectAttempts = 0;
+        });
       };
       
       this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Mensaje WebSocket recibido:', data);
-          this.messageSubject.next(data);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
+        this.ngZone.run(() => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Mensaje WebSocket recibido:', data);
+            this.messageSubject.next(data);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        });
       };
       
       this.ws.onerror = (error) => {
-        console.error('Error WebSocket:', error);
-        this.errorSubject.next(error);
+        this.ngZone.run(() => {
+          console.error('Error WebSocket:', error);
+          this.errorSubject.next(error);
+        });
       };
       
       this.ws.onclose = (event) => {
-        console.log('WebSocket cerrado:', event.code, event.reason);
-        this.connectedSubject.next(false);
-        this.ws = null;
-        
-        // Intentar reconectar si no fue un cierre normal
-        if (event.code !== 1000) {
-          this.scheduleReconnect(token, servicioId);
-        }
+        this.ngZone.run(() => {
+          console.log('WebSocket cerrado:', event.code, event.reason);
+          this.connectedSubject.next(false);
+          this.ws = null;
+          
+          // Intentar reconectar si no fue un cierre normal
+          if (event.code !== 1000) {
+            this.scheduleReconnect(token, servicioId);
+          }
+        });
       };
       
     } catch (error) {
