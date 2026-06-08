@@ -48,23 +48,57 @@ self.addEventListener('push', (event) => {
     try {
       const data = event.data.json();
       console.log('[firebase-messaging-sw.js] Push data:', data);
+      
+      // Soportar múltiples formatos de payload
       notificationData = {
-        title: data.notification?.title || data.title || notificationData.title,
-        body: data.notification?.body || data.body || notificationData.body,
-        icon: data.notification?.icon || data.icon || notificationData.icon,
-        data: data.data
+        // Formato 1: Datos directos
+        title: data.title || 
+               // Formato 2: Datos dentro de "notification"
+               data.notification?.title || 
+               // Formato Firebase
+               data.data?.title ||
+               notificationData.title,
+               
+        body: data.body || 
+              data.notification?.body || 
+              data.data?.body ||
+              data.message ||
+              notificationData.body,
+              
+        icon: data.icon || 
+              data.notification?.icon || 
+              notificationData.icon,
+              
+        badge: data.badge || 
+               data.notification?.badge,
+               
+        tag: data.tag || 
+             'notification-' + Date.now(),
+             
+        data: data.data || data
       };
     } catch (e) {
+      console.error('[firebase-messaging-sw.js] Error parsing push data:', e);
       // If parsing fails, try to get text
-      notificationData.body = event.data.text() || notificationData.body;
+      try {
+        notificationData.body = event.data.text() || notificationData.body;
+      } catch (e2) {
+        console.error('[firebase-messaging-sw.js] Error getting text:', e2);
+      }
     }
   }
+
+  console.log('[firebase-messaging-sw.js] Showing notification:', notificationData);
 
   event.waitUntil(
     self.registration.showNotification(notificationData.title, {
       body: notificationData.body,
       icon: notificationData.icon,
-      data: notificationData.data
+      badge: notificationData.badge,
+      tag: notificationData.tag,
+      data: notificationData.data,
+      requireInteraction: false,
+      vibrate: [200, 100, 200]
     })
   );
 });
